@@ -1,44 +1,70 @@
 import logging
 from . import conn
+from .feild import *
 
 
-class Field(object):
+class PreQuery:
+    """
+    预查询对象 通过fetch执行
+    """
 
-    def __init__(self, type, primary_key=False, default=None):
-        self.name = None
-        self.type = type
-        self.primary_key = primary_key
-        self.default = default
+    def __init__(self, table_name, sql='', args=None):
+        """
 
-    def __str__(self):
-        return "< {} {} {} >".format(self.__class__.__name__, self.name, self.type)
+        :param table_name: 表名
+        :param action: 操作类型 一般为
+        :param sql: 执行的sql
+        :param args: 参数
+        """
+        if args is None:
+            args = list()
+        self._sql = 'SELECT '
+        self._args = args
+        self._table_name = table_name
 
     @property
-    def sql_column(self):
-        column = "{} {} ".format(self.name, self.type)
-        if self.primary_key is True:
-            column = column + "PRIMARY KEY AUTO_INCREMENT "
-        if self.default is not None:
-            column = column + "DEFAULT {}".format(str(self.default))
-        return column
+    def sql(self):
+        return self._sql
 
+    @property.setter
+    def sql(self, value):
+        self._sql = self.sql + value
 
-class String(Field):
+    @property
+    def args(self):
+        return self._args
 
-    def __init__(self, legth, primary_key=False, default=None):
-        super().__init__(type="varchar({})".format(str(legth)), primary_key=primary_key, default=default)
+    @property.setter
+    def args(self, value: list):
+        self._args.extend(value)
 
+    def where(self, conds):
+        """
+        条件限制
+        :param conds:
+        :return: PreQuery
+        """
+        pass
 
-class Integer(Field):
+    def limit(self, num):
+        """
+        数量限制
+        :param num:
+        :return: PreQuery
+        """
+        pass
 
-    def __init__(self, primary_key=False, default=None):
-        super().__init__(type="int(11)", primary_key=primary_key, default=default)
+    def order(self, filed, desc):
+        """
+        数量限制
+        :param num:
+        :return: PreQuery
+        """
+        pass
 
-
-class Text(Field):
-
-    def __init__(self, primary_key=False, default=None):
-        super().__init__(type="mediumtext", primary_key=primary_key, default=default)
+    async def fetch(self):
+        rows = await conn.select(sql=self.sql, args=self._args, size=None)
+        return rows
 
 
 class ModelMetaClass(type):
@@ -50,7 +76,7 @@ class ModelMetaClass(type):
         mappings = dict()
         fields = list()
         primary_key = None
-        for k,v in attrs.items():
+        for k, v in attrs.items():
             if isinstance(v, Field):
                 fields.append(k)
                 v.name = str(k)
@@ -73,6 +99,9 @@ class ModelMetaClass(type):
 
 
 class Model(dict, metaclass=ModelMetaClass):
+    """
+    模型基类
+    """
 
     def __init__(self, **kwargs):
         super(Model, self).__init__(**kwargs)
@@ -82,6 +111,14 @@ class Model(dict, metaclass=ModelMetaClass):
 
     def __setattr__(self, key, value):
         self[key] = value
+
+    @classmethod
+    def query(cls):
+        """
+        进行更复杂的查询
+        :return: PreQuery 对象
+        """
+        return PreQuery(cls.__tablename__)
 
     @classmethod
     async def find_by(cls, **kwargs):
@@ -117,7 +154,7 @@ class Model(dict, metaclass=ModelMetaClass):
         values = self.get_args_by_fields(keys)
         rows = await conn.execute("{}({}) VALUES ({})".format(self.__insert__, ','.join(keys),
                                                               self.create_args(len(keys))),
-                                        values)
+                                  values)
         if rows != 1:
             logging.warning('failed to insert record: affected rows: %s' % rows)
 
@@ -125,20 +162,23 @@ class Model(dict, metaclass=ModelMetaClass):
         keys = list()
         values = list()
         for k, v in kwargs.items():
-            keys.append(str(k)+" = ? ")
+            keys.append(str(k) + " = ? ")
             values.append(v)
         rows = await conn.execute("{} {} WHERE {} = ?".format(self.__update__, ','.join(keys), self.__primary_key__),
                                   args=values + [getattr(self, self.__primary_key__, None)])
         if rows != 1:
             logging.warning('failed to insert record: affected rows: %s' % rows)
 
+
+    async def delete(self):
+        pass
+
     @classmethod
     async def create_table(cls, coding="utf-8"):
-        colums =[v.sql_column for v in cls.__mappings__.values()]
-        await conn.execute('CREATE TABLE {} ({});'.format(cls.__tablename__ , ','.join(colums)), args=None)
+        colums = [v.sql_column for v in cls.__mappings__.values()]
+        await conn.execute('CREATE TABLE {} ({});'.format(cls.__tablename__, ','.join(colums)), args=None)
         await conn.execute('ALTER TABLE {} CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;'
                            .format(cls.__tablename__), args=None)
-
 
     @staticmethod
     def create_args(legth):
