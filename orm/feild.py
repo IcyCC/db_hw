@@ -1,3 +1,17 @@
+class Cond(object):
+
+    def __init__(self, field, op, value):
+        """
+        比较的条件
+        :param field:
+        :param op:
+        :param value:
+        """
+        self.field = field
+        self.op = op
+        self.value = value
+
+
 class Field(object):
     """
     处理字段相关逻辑
@@ -20,6 +34,9 @@ class Field(object):
         if self.default is not None:
             column = column + "DEFAULT {}".format(str(self.default))
         return column
+
+    def __eq__(self, other) -> Cond:
+        pass
 
 
 class String(Field):

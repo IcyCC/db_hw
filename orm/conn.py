@@ -21,6 +21,7 @@ async def connection(loop,**sql_config):
         minsize=sql_config.get('minsize', 1),
         loop=loop)
 
+
 async def select(sql, args, size=None):
     logging.info("select sql:{} arg{} ".format(str(sql), str(args)))
     global _pool

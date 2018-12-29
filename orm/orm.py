@@ -3,70 +3,6 @@ from . import conn
 from .feild import *
 
 
-class PreQuery:
-    """
-    预查询对象 通过fetch执行
-    """
-
-    def __init__(self, table_name, sql='', args=None):
-        """
-
-        :param table_name: 表名
-        :param action: 操作类型 一般为
-        :param sql: 执行的sql
-        :param args: 参数
-        """
-        if args is None:
-            args = list()
-        self._sql = 'SELECT '
-        self._args = args
-        self._table_name = table_name
-
-    @property
-    def sql(self):
-        return self._sql
-
-    @property.setter
-    def sql(self, value):
-        self._sql = self.sql + value
-
-    @property
-    def args(self):
-        return self._args
-
-    @property.setter
-    def args(self, value: list):
-        self._args.extend(value)
-
-    def where(self, conds):
-        """
-        条件限制
-        :param conds:
-        :return: PreQuery
-        """
-        pass
-
-    def limit(self, num):
-        """
-        数量限制
-        :param num:
-        :return: PreQuery
-        """
-        pass
-
-    def order(self, filed, desc):
-        """
-        数量限制
-        :param num:
-        :return: PreQuery
-        """
-        pass
-
-    async def fetch(self):
-        rows = await conn.select(sql=self.sql, args=self._args, size=None)
-        return rows
-
-
 class ModelMetaClass(type):
 
     def __new__(cls, name, bases, attrs):
@@ -118,7 +54,7 @@ class Model(dict, metaclass=ModelMetaClass):
         进行更复杂的查询
         :return: PreQuery 对象
         """
-        return PreQuery(cls.__tablename__)
+        return PreQuery(cls)
 
     @classmethod
     async def find_by(cls, **kwargs):
@@ -152,9 +88,17 @@ class Model(dict, metaclass=ModelMetaClass):
                 continue
             keys.append(key)
         values = self.get_args_by_fields(keys)
-        rows = await conn.execute("{}({}) VALUES ({})".format(self.__insert__, ','.join(keys),
-                                                              self.create_args(len(keys))),
-                                  values)
+        if getattr(self, self.__primary_key__, None) is None:
+            # 主键没有值 新增
+            rows = await conn.execute("{}({}) VALUES ({})".format(self.__insert__, ','.join(keys),
+                                                                  self.create_args(len(keys))),
+                                      values)
+        else:
+            # 主键有值 更新
+            rows = await conn.execute("{}({}) VALUES ({}) WHERE {} = ?".format(self.__update__, ','.join(keys), self.__primary_key__,
+                                                                  self.create_args(len(keys))),
+                                      values)
+
         if rows != 1:
             logging.warning('failed to insert record: affected rows: %s' % rows)
 
@@ -195,3 +139,69 @@ class Model(dict, metaclass=ModelMetaClass):
                 raise Exception("value is None")
             values.append(v)
         return values
+
+
+class PreQuery:
+    """
+    预查询对象 通过fetch执行
+    """
+
+    def __init__(self, model:Model, sql='', args=None):
+        """
+
+        :param model: 表名
+        :param action: 操作类型 一般为
+        :param sql: 执行的sql
+        :param args: 参数
+        """
+        self._model = model
+        if args is None:
+            args = list()
+        if not sql:
+            sql = model.__select__
+        self._sql = sql
+        self._args = args
+
+    @property
+    def sql(self):
+        return self._sql
+
+    @property.setter
+    def sql(self, value:str):
+        self._sql = self.sql + value
+
+    @property
+    def args(self):
+        return self._args
+
+    @property.setter
+    def args(self, value: list):
+        self._args.extend(value)
+
+    def where(self, *conds):
+        """
+        条件限制
+        :param conds:
+        :return: PreQuery
+        """
+        pass
+
+    def limit(self, num):
+        """
+        数量限制
+        :param num:
+        :return: PreQuery
+        """
+        pass
+
+    def order(self, filed, desc):
+        """
+        数量限制
+        :param num:
+        :return: PreQuery
+        """
+        pass
+
+    async def fetch(self):
+        rows = await conn.select(sql=self.sql, args=self._args, size=None)
+        return rows
