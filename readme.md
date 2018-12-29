@@ -49,7 +49,7 @@ async def high_select():
 ```python
 
 async def trans():
-    tx =  Transaction.begin()
+    tx =  await Transaction.begin()
     u1 = User(name='a')
     u2 = User(name='b')
     try:
@@ -60,4 +60,9 @@ async def trans():
     else:
         tx.commit()
 ```
-
+2
+```python
+async await Transaction.begin() as tx:
+    await u1.save(tx)
+    await u2.save(tx)
+```
