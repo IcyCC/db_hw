@@ -49,7 +49,7 @@ async def high_select():
 ```python
 
 async def trans():
-    tx =  trans.begin()
+    tx =  Transaction.begin()
     u1 = User(name='a')
     u2 = User(name='b')
     try:
