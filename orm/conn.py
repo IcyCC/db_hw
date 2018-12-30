@@ -39,7 +39,7 @@ async def select(sql, args, size=None):
 
 async def execute(tx=None, sql=None, args=None, size=None):
     global _pool
-    logging.info(sql, str(args))
+    print(sql, str(args))
     if tx is None:
         async with _pool.get() as con:
             cur = await con.cursor()
