@@ -58,7 +58,7 @@ class Model(dict, metaclass=ModelMetaClass):
         super(Model, self).__init__(**kwargs)
 
     def __getattr__(self, item):
-        return self.get(item,None)
+        return self.get(item, None)
 
     def __setattr__(self, key, value):
         self[key] = value
@@ -100,23 +100,27 @@ class Model(dict, metaclass=ModelMetaClass):
     async def save(self, tx=None):
         keys = list()
         mappings = self.__mappings__
+        # 主键没有值 新增
         for key, column in mappings.items():
             if column.primary_key is True:
                 continue
             keys.append(key)
         values = self.get_args_by_fields(keys)
-
         if getattr(self, self.__primary_key__, None) is None:
-            # 主键没有值 新增
+
             rows = await conn.execute(tx, "{}({}) VALUES ({})".format(self.__insert__, ','.join(keys),
                                                                       self.create_args(len(keys))),
                                       values)
         else:
             # 主键有值 更新
-            rows = await conn.execute(tx, "{}({}) VALUES ({}) WHERE {} = ?".format(self.__update__, ','.join(keys),
-                                                                                   self.__primary_key__,
-                                                                                   self.create_args(len(keys))),
-                                      [getattr(self, self.__primary_key__, None)] + values)
+            update_keys = list()
+            for k in keys:
+                update_keys.append(str(k) + " = ? ")
+            rows = await conn.execute(tx, "{} {} WHERE {} = ?".format(self.__update__,
+                                                                      ','.join(update_keys),
+                                                                      self.__primary_key__,
+                                                                      ),
+                                      values + [getattr(self, self.__primary_key__, None)])
 
         if rows != 1:
             logging.warning('failed to insert record: affected rows: %s' % rows)
@@ -175,7 +179,7 @@ class PreQuery:
     预查询对象 通过fetch执行
     """
 
-    def __init__(self, model:ModelMetaClass, sql='', args=None):
+    def __init__(self, model: ModelMetaClass, sql='', args=None):
         """
         :param model: 表名
         :param action: 操作类型 一般为
