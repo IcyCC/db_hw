@@ -166,7 +166,7 @@ class PreQuery:
     def sql(self):
         return self._sql
 
-    @property.setter
+    @sql.setter
     def sql(self, value:str):
         self._sql = self.sql + value
 
@@ -174,7 +174,7 @@ class PreQuery:
     def args(self):
         return self._args
 
-    @property.setter
+    @args.setter
     def args(self, value: list):
         self._args.extend(value)
 
@@ -194,7 +194,7 @@ class PreQuery:
         """
         pass
 
-    def order(self, filed, desc):
+    def order(self, filed, desc = True):
         """
         数量限制
         :param num:
