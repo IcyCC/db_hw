@@ -20,9 +20,6 @@ class ModelMetaClass(type):
                 if v.primary_key is True:
                     primary_key = k
 
-        for k in mappings.keys():
-            attrs.pop(k)
-
         if attrs.get('__tablename__', None) is None:
             attrs['__tablename__'] = str(name).lower()
         attrs['__primary_key__'] = primary_key
