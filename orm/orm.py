@@ -31,7 +31,7 @@ class ModelMetaClass(type):
         attrs['__select__'] = "SELECT * FROM {} ".format(attrs['__tablename__'])
         attrs['__insert__'] = "INSERT INTO {} ".format(attrs['__tablename__'])
         attrs['__update__'] = "UPDATE {} SET ".format(attrs['__tablename__'])
-        attrs['__delete__'] = "DELETE FROM {} ".format(attrs['__tablename__'])
+        attrs['__delete_s__'] = "DELETE FROM {} ".format(attrs['__tablename__'])
 
         return type.__new__(cls, name, bases, attrs)
 
@@ -139,14 +139,13 @@ class Model(dict, metaclass=ModelMetaClass):
 
     async def delete(self, tx=None):
         primary_key = getattr(self, self.__primary_key__, None)
-        value = self.get_args_by_fields(primary_key)
         if primary_key is None:
             # 主键没有值 
             return False
         else:
             # 主键有值 删除
-            rows = await conn.execute(tx, "{} WHERE {} = ?".format(self.__delete__, primary_key),
-                                      value)
+            rows = await conn.execute(tx, "{} WHERE {} = ?".format(self.__delete_s__, self.__primary_key__),
+                                      [primary_key])
         if rows != 1:
             logging.warning('failed to delete record: affected rows: %s' % rows)
 
