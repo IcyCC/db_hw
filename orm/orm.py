@@ -27,6 +27,7 @@ class ModelMetaClass(type):
         attrs['__select__'] = "SELECT * FROM {}".format(attrs['__tablename__'])
         attrs['__insert__'] = "INSERT INTO {}".format(attrs['__tablename__'])
         attrs['__update__'] = "UPDATE {} SET ".format(attrs['__tablename__'])
+        attrs['__delete__'] = "DELETE FROM {} ".format(attrs['__tablename__'])
 
         return type.__new__(cls, name, bases, attrs)
 
@@ -81,7 +82,7 @@ class Model(dict, metaclass=ModelMetaClass):
 
         return result
 
-    async def save(self):
+    async def save(self, tx = None):
         keys = list()
         mappings = self.__mappings__
         for key, column in mappings.items():
@@ -91,32 +92,42 @@ class Model(dict, metaclass=ModelMetaClass):
         values = self.get_args_by_fields(keys)
         if getattr(self, self.__primary_key__, None) is None:
             # 主键没有值 新增
-            rows = await conn.execute("{}({}) VALUES ({})".format(self.__insert__, ','.join(keys),
+            rows = await conn.execute(tx, "{}({}) VALUES ({})".format(self.__insert__, ','.join(keys),
                                                                   self.create_args(len(keys))),
                                       values)
         else:
             # 主键有值 更新
-            rows = await conn.execute(
-                "{}({}) VALUES ({}) WHERE {} = ?".format(self.__update__, ','.join(keys), self.__primary_key__,
-                                                         self.create_args(len(keys))),
-                values)
+            rows = await conn.execute(tx, "{}({}) VALUES ({}) WHERE {} = ?".format(self.__update__, ','.join(keys), self.__primary_key__,
+                                                                  self.create_args(len(keys))),
+                                      values)
 
         if rows != 1:
             logging.warning('failed to insert record: affected rows: %s' % rows)
 
-    async def update(self, **kwargs):
+    async def update(self, tx=None, **kwargs):
         keys = list()
         values = list()
         for k, v in kwargs.items():
             keys.append(str(k) + " = ? ")
             values.append(v)
-        rows = await conn.execute("{} {} WHERE {} = ?".format(self.__update__, ','.join(keys), self.__primary_key__),
+        rows = await conn.execute(tx, "{} {} WHERE {} = ?".format(self.__update__, ','.join(keys), self.__primary_key__),
                                   args=values + [getattr(self, self.__primary_key__, None)])
         if rows != 1:
             logging.warning('failed to insert record: affected rows: %s' % rows)
 
-    async def delete(self):
-        pass
+
+    async def delete(self, tx=None):
+        primary_key = getattr(self, self.__primary_key__, None)
+        value = self.get_args_by_fields(primary_key)
+        if primary_key is None:
+            # 主键没有值 
+            return False
+        else:
+            # 主键有值 删除
+            rows = await conn.execute(tx, "{} WHERE {} = ?".format(self.__delete__, primary_key),
+                                      value)
+        if rows != 1:
+            logging.warning('failed to delete record: affected rows: %s' % rows)
 
     @classmethod
     async def create_table(cls, coding="utf-8"):
