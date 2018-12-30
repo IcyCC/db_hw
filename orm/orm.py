@@ -20,9 +20,6 @@ class ModelMetaClass(type):
                 if v.primary_key is True:
                     primary_key = k
 
-        for k in mappings.keys():
-            attrs.pop(k)
-
         if attrs.get('__tablename__', None) is None:
             attrs['__tablename__'] = str(name).lower()
         attrs['__primary_key__'] = primary_key
@@ -168,7 +165,7 @@ class PreQuery:
     def sql(self):
         return self._sql
 
-    @property.setter
+    @sql.setter
     def sql(self, value:str):
         self._sql = self.sql + value
 
@@ -176,7 +173,7 @@ class PreQuery:
     def args(self):
         return self._args
 
-    @property.setter
+    @args.setter
     def args(self, value: list):
         self._args.extend(value)
 
@@ -196,7 +193,7 @@ class PreQuery:
         """
         pass
 
-    def order(self, filed, desc):
+    def order(self, filed, desc = True):
         """
         数量限制
         :param num:
