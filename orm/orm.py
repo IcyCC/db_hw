@@ -21,6 +21,9 @@ class ModelMetaClass(type):
                 if v.primary_key is True:
                     primary_key = k
 
+        for k in mappings.keys():
+            attrs.pop(k)
+
         if attrs.get('__tablename__', None) is None:
             attrs['__tablename__'] = str(name).lower()
         attrs['__primary_key__'] = primary_key
@@ -32,6 +35,14 @@ class ModelMetaClass(type):
 
         return type.__new__(cls, name, bases, attrs)
 
+    def __getattr__(cls, item):
+        """
+        用于Model.Field 方式获取字段
+        :param item:
+        :return:
+        """
+        return cls.__mappings__[item]
+
 
 class Model(dict, metaclass=ModelMetaClass):
     """
@@ -40,8 +51,6 @@ class Model(dict, metaclass=ModelMetaClass):
 
     def __init__(self, **kwargs):
         super(Model, self).__init__(**kwargs)
-        for k, v in self.__mappings__.items():
-            setattr(self, k, kwargs.get(k))
 
     def __getattr__(self, item):
         return self[item]
@@ -83,7 +92,7 @@ class Model(dict, metaclass=ModelMetaClass):
 
         return result
 
-    async def save(self, tx = None):
+    async def save(self, tx=None):
         keys = list()
         mappings = self.__mappings__
         for key, column in mappings.items():
@@ -91,16 +100,18 @@ class Model(dict, metaclass=ModelMetaClass):
                 continue
             keys.append(key)
         values = self.get_args_by_fields(keys)
+
         if getattr(self, self.__primary_key__, None) is None:
             # 主键没有值 新增
             rows = await conn.execute(tx, "{}({}) VALUES ({})".format(self.__insert__, ','.join(keys),
-                                                                  self.create_args(len(keys))),
+                                                                      self.create_args(len(keys))),
                                       values)
         else:
             # 主键有值 更新
-            rows = await conn.execute(tx, "{}({}) VALUES ({}) WHERE {} = ?".format(self.__update__, ','.join(keys), self.__primary_key__,
-                                                                  self.create_args(len(keys))),
-                                      values)
+            rows = await conn.execute(tx, "{}({}) VALUES ({}) WHERE {} = ?".format(self.__update__, ','.join(keys),
+                                                                                   self.__primary_key__,
+                                                                                   self.create_args(len(keys))),
+                                      [getattr(self, self.__primary_key__, None)] + values)
 
         if rows != 1:
             logging.warning('failed to insert record: affected rows: %s' % rows)
@@ -111,11 +122,11 @@ class Model(dict, metaclass=ModelMetaClass):
         for k, v in kwargs.items():
             keys.append(str(k) + " = ? ")
             values.append(v)
-        rows = await conn.execute(tx, "{} {} WHERE {} = ?".format(self.__update__, ','.join(keys), self.__primary_key__),
+        rows = await conn.execute(tx,
+                                  "{} {} WHERE {} = ?".format(self.__update__, ','.join(keys), self.__primary_key__),
                                   args=values + [getattr(self, self.__primary_key__, None)])
         if rows != 1:
             logging.warning('failed to insert record: affected rows: %s' % rows)
-
 
     async def delete(self, tx=None):
         primary_key = getattr(self, self.__primary_key__, None)
@@ -133,8 +144,8 @@ class Model(dict, metaclass=ModelMetaClass):
     @classmethod
     async def create_table(cls, coding="utf-8"):
         colums = [v.sql_column for v in cls.__mappings__.values()]
-        await conn.execute('CREATE TABLE {} ({});'.format(cls.__tablename__, ','.join(colums)), args=None)
-        await conn.execute('ALTER TABLE {} CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;'
+        await conn.execute(None, 'CREATE TABLE {} ({});'.format(cls.__tablename__, ','.join(colums)), args=None)
+        await conn.execute(None, 'ALTER TABLE {} CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;'
                            .format(cls.__tablename__), args=None)
 
     @staticmethod
@@ -177,7 +188,7 @@ class PreQuery:
     def sql(self):
         return self._sql
 
-    def append_sql(self, value:str):
+    def append_sql(self, value: str):
         self._sql = self._sql + value
 
     def args(self):
@@ -211,8 +222,8 @@ class PreQuery:
         query.append_sql(" limit " + str(num))
         return query
 
-    def order(self, field, desc = False):
-         """
+    def order(self, field, desc=False):
+        """
         数量限制
         :param num:
         :return: PreQuery
@@ -220,7 +231,7 @@ class PreQuery:
         query = copy.copy(self)
         if desc:
             query.append_sql(" ".join([" ORDER BY", field.name, "DESC "]))
-        else: 
+        else:
             query.append_sql(" ".join([" ORDER BY", field.name, "ASC "]))
         return query
 
