@@ -8,7 +8,7 @@
 
 class User(orm.Model):
     id = orm.Integer(primary_key=True)
-    name = orm.String(len=32)
+    name = orm.String(length=32)
     
 ```
 
@@ -65,4 +65,12 @@ async def trans():
 async await Transaction.begin() as tx:
     await u1.save(tx)
     await u2.save(tx)
+```
+
+
+### 索引支持
+
+```python
+name = orm.String(length=32, index='idx_users_name(32)')
+
 ```
