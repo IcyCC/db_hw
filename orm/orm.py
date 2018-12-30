@@ -60,14 +60,16 @@ class Model(dict, metaclass=ModelMetaClass):
     async def find_by(cls, **kwargs):
         items = tuple(kwargs.items())
         key, value = items[0]
-        rs = await conn.select("{} WHERE {} = ?".format(cls.__select__, key), value)
+        rs = await conn.select("{} WHERE {} = ?".format(cls.__select__, key), value, 1)
         if not rs:
             return None
         result = list()
         for r in rs:
             result.append(cls(**r))
-
-        return result
+        if result:
+            return result[0]
+        else:
+            return None
 
     @classmethod
     async def all(cls):
