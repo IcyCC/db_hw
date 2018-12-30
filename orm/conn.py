@@ -48,7 +48,7 @@ async def execute(tx=None, sql=None, args=None, size=None):
             await cur.close()
             print("select size {} ".format(str(rs)))
     else:
-        cur = tx.conn.cursor()
+        cur = await tx.conn.cursor()
         await cur.execute(sql.replace('?', '%s'), args or ())
         rs = cur.rowcount
         await cur.close()
