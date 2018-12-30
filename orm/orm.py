@@ -1,4 +1,5 @@
 import logging
+import copy
 from . import conn
 from .feild import *
 
@@ -24,8 +25,8 @@ class ModelMetaClass(type):
             attrs['__tablename__'] = str(name).lower()
         attrs['__primary_key__'] = primary_key
         attrs['__mappings__'] = mappings
-        attrs['__select__'] = "SELECT * FROM {}".format(attrs['__tablename__'])
-        attrs['__insert__'] = "INSERT INTO {}".format(attrs['__tablename__'])
+        attrs['__select__'] = "SELECT * FROM {} ".format(attrs['__tablename__'])
+        attrs['__insert__'] = "INSERT INTO {} ".format(attrs['__tablename__'])
         attrs['__update__'] = "UPDATE {} SET ".format(attrs['__tablename__'])
         attrs['__delete__'] = "DELETE FROM {} ".format(attrs['__tablename__'])
 
@@ -160,7 +161,6 @@ class PreQuery:
 
     def __init__(self, model: Model, sql='', args=None):
         """
-
         :param model: 表名
         :param action: 操作类型 一般为
         :param sql: 执行的sql
@@ -174,29 +174,31 @@ class PreQuery:
         self._sql = sql
         self._args = args
 
-    @property
     def sql(self):
         return self._sql
 
-    @sql.setter
-    def sql(self, value: str):
-        self._sql = self.sql + value
+    def append_sql(self, value:str):
+        self._sql = self._sql + value
 
-    @property
     def args(self):
         return self._args
 
-    @args.setter
-    def args(self, value: list):
+    def append_args(self, value: list):
         self._args.extend(value)
 
-    def where(self, *conds):
+    def __str__(self):
+        return self._sql
+
+    def where(self, cond):
         """
         条件限制
         :param conds:
         :return: PreQuery
         """
-        pass
+        query = copy.copy(self)
+        query.append_sql(cond.sql())
+        query.append_args(cond.args())
+        return query
 
     def limit(self, num):
         """
@@ -204,15 +206,23 @@ class PreQuery:
         :param num:
         :return: PreQuery
         """
-        pass
+        num = int(num)
+        query = copy.copy(self)
+        query.append_sql(" limit " + str(num))
+        return query
 
-    def order(self, filed, desc=True):
-        """
+    def order(self, field, desc = False):
+         """
         数量限制
         :param num:
         :return: PreQuery
         """
-        pass
+        query = copy.copy(self)
+        if desc:
+            query.append_sql(" ".join([" ORDER BY", field.name, "DESC "]))
+        else: 
+            query.append_sql(" ".join([" ORDER BY", field.name, "ASC "]))
+        return query
 
     async def fetch(self):
         rows = await conn.select(sql=self.sql, args=self._args, size=None)

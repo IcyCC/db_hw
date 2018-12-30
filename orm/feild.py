@@ -11,6 +11,12 @@ class Cond(object):
         self.op = op
         self.value = value
 
+    def sql(self):
+        return " ".join([self.field, self.op, "?"])
+
+    def args(self):
+        return [self.value] 
+
 
 class Field(object):
     """
@@ -36,8 +42,22 @@ class Field(object):
         return column
 
     def __eq__(self, other) -> Cond:
-        pass
+        return Cond(self.name, "=",  other)
 
+    def __ne__(self, other) -> Cond:
+        return Cond(self.name, "<>", other)
+
+    def __lt__(self, other) -> Cond:
+        return Cond(self.name, "<",  other)
+
+    def __le__(self, other) -> Cond:
+        return Cond(self.name, "<=", other)
+
+    def __gt__(self, other) -> Cond:
+        return Cond(self.name, ">",  other)
+
+    def __ge__(self, other) -> Cond:
+        return Cond(self.name, ">=", other)
 
 class String(Field):
 
