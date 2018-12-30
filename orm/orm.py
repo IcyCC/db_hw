@@ -175,7 +175,7 @@ class PreQuery:
     预查询对象 通过fetch执行
     """
 
-    def __init__(self, model: Model, sql='', args=None):
+    def __init__(self, model:ModelMetaClass, sql='', args=None):
         """
         :param model: 表名
         :param action: 操作类型 一般为
@@ -212,7 +212,7 @@ class PreQuery:
         :return: PreQuery
         """
         query = copy.copy(self)
-        query.append_sql(cond.sql())
+        query.append_sql(' WHERE ' + cond.sql())
         query.append_args(cond.args())
         return query
 
@@ -241,5 +241,8 @@ class PreQuery:
         return query
 
     async def fetch(self):
-        rows = await conn.select(sql=self.sql, args=self._args, size=None)
-        return rows
+        rows = await conn.select(sql=self.sql(), args=self.args(), size=None)
+        result = list()
+        for r in rows:
+            result.append(self._model(**r))
+        return result
