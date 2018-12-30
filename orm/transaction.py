@@ -7,7 +7,15 @@ class Transaction(object):
     """
     def __init__(self, conn):
         self.conn = conn
-        
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exctype, exc, tb):
+        if exc is None:
+            await self.commit()
+        else:
+            await self.roll_back()
 
     @classmethod
     async def begin(cls):

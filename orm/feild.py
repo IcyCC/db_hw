@@ -61,14 +61,14 @@ class Field(object):
 
 class String(Field):
 
-    def __init__(self, legth, primary_key=False, default=None):
-        super().__init__(type="varchar({})".format(str(legth)), primary_key=primary_key, default=default)
+    def __init__(self, length, primary_key=False, default=None):
+        super().__init__(type="varchar({})".format(str(length)), primary_key=primary_key, default=default)
 
 
 class Integer(Field):
 
-    def __init__(self, primary_key=False, default=None):
-        super().__init__(type="int(11)", primary_key=primary_key, default=default)
+    def __init__(self, length, primary_key=False, default=None):
+        super().__init__(type="int({})".format(str(length)), primary_key=primary_key, default=default)
 
 
 class Text(Field):
@@ -76,3 +76,20 @@ class Text(Field):
     def __init__(self, primary_key=False, default=None):
         super().__init__(type="mediumtext", primary_key=primary_key, default=default)
 
+
+class TinyInteger(Field):
+
+    def __init__(self, length, primary_key=False, default=None):
+        super().__init__(type="tinyint({})".format(str(length)), primary_key=primary_key, default=default)
+
+
+class Datetime(Field):
+
+    def __init__(self, length, primary_key=False, default=None):
+        super().__init__(type="datetime", primary_key=primary_key, default=default)
+
+
+class Float(Field):
+
+    def __init__(self, length, dec, primary_key=False, default=None):
+        super().__init__(type="float({},{})".format(str(length), str(dec)))
