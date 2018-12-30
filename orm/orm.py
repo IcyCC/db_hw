@@ -31,7 +31,7 @@ class ModelMetaClass(type):
         attrs['__select__'] = "SELECT * FROM {} ".format(attrs['__tablename__'])
         attrs['__insert__'] = "INSERT INTO {} ".format(attrs['__tablename__'])
         attrs['__update__'] = "UPDATE {} SET ".format(attrs['__tablename__'])
-        attrs['__delete__'] = "DELETE FROM {} ".format(attrs['__tablename__'])
+        attrs['__delete_s__'] = "DELETE FROM {} ".format(attrs['__tablename__'])
 
         return type.__new__(cls, name, bases, attrs)
 
@@ -58,7 +58,7 @@ class Model(dict, metaclass=ModelMetaClass):
         super(Model, self).__init__(**kwargs)
 
     def __getattr__(self, item):
-        return self.get(item,None)
+        return self.get(item, None)
 
     def __setattr__(self, key, value):
         self[key] = value
@@ -100,23 +100,27 @@ class Model(dict, metaclass=ModelMetaClass):
     async def save(self, tx=None):
         keys = list()
         mappings = self.__mappings__
+        # 主键没有值 新增
         for key, column in mappings.items():
             if column.primary_key is True:
                 continue
             keys.append(key)
         values = self.get_args_by_fields(keys)
-
         if getattr(self, self.__primary_key__, None) is None:
-            # 主键没有值 新增
+
             rows = await conn.execute(tx, "{}({}) VALUES ({})".format(self.__insert__, ','.join(keys),
                                                                       self.create_args(len(keys))),
                                       values)
         else:
             # 主键有值 更新
-            rows = await conn.execute(tx, "{}({}) VALUES ({}) WHERE {} = ?".format(self.__update__, ','.join(keys),
-                                                                                   self.__primary_key__,
-                                                                                   self.create_args(len(keys))),
-                                      [getattr(self, self.__primary_key__, None)] + values)
+            update_keys = list()
+            for k in keys:
+                update_keys.append(str(k) + " = ? ")
+            rows = await conn.execute(tx, "{} {} WHERE {} = ?".format(self.__update__,
+                                                                      ','.join(update_keys),
+                                                                      self.__primary_key__,
+                                                                      ),
+                                      values + [getattr(self, self.__primary_key__, None)])
 
         if rows != 1:
             logging.warning('failed to insert record: affected rows: %s' % rows)
@@ -135,14 +139,13 @@ class Model(dict, metaclass=ModelMetaClass):
 
     async def delete(self, tx=None):
         primary_key = getattr(self, self.__primary_key__, None)
-        value = self.get_args_by_fields(primary_key)
         if primary_key is None:
             # 主键没有值 
             return False
         else:
             # 主键有值 删除
-            rows = await conn.execute(tx, "{} WHERE {} = ?".format(self.__delete__, primary_key),
-                                      value)
+            rows = await conn.execute(tx, "{} WHERE {} = ?".format(self.__delete_s__, self.__primary_key__),
+                                      [primary_key])
         if rows != 1:
             logging.warning('failed to delete record: affected rows: %s' % rows)
 
@@ -175,7 +178,7 @@ class PreQuery:
     预查询对象 通过fetch执行
     """
 
-    def __init__(self, model: Model, sql='', args=None):
+    def __init__(self, model: ModelMetaClass, sql='', args=None):
         """
         :param model: 表名
         :param action: 操作类型 一般为
@@ -212,7 +215,7 @@ class PreQuery:
         :return: PreQuery
         """
         query = copy.copy(self)
-        query.append_sql(cond.sql())
+        query.append_sql(' WHERE ' + cond.sql())
         query.append_args(cond.args())
         return query
 
@@ -241,5 +244,8 @@ class PreQuery:
         return query
 
     async def fetch(self):
-        rows = await conn.select(sql=self.sql, args=self._args, size=None)
-        return rows
+        rows = await conn.select(sql=self.sql(), args=self.args(), size=None)
+        result = list()
+        for r in rows:
+            result.append(self._model(**r))
+        return result
