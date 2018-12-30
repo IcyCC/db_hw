@@ -38,6 +38,8 @@ class Model(dict, metaclass=ModelMetaClass):
 
     def __init__(self, **kwargs):
         super(Model, self).__init__(**kwargs)
+        for k, v in self.__mappings__.items():
+            setattr(self, k, kwargs.get(k))
 
     def __getattr__(self, item):
         return self[item]
@@ -94,9 +96,10 @@ class Model(dict, metaclass=ModelMetaClass):
                                       values)
         else:
             # 主键有值 更新
-            rows = await conn.execute("{}({}) VALUES ({}) WHERE {} = ?".format(self.__update__, ','.join(keys), self.__primary_key__,
-                                                                  self.create_args(len(keys))),
-                                      values)
+            rows = await conn.execute(
+                "{}({}) VALUES ({}) WHERE {} = ?".format(self.__update__, ','.join(keys), self.__primary_key__,
+                                                         self.create_args(len(keys))),
+                values)
 
         if rows != 1:
             logging.warning('failed to insert record: affected rows: %s' % rows)
@@ -111,7 +114,6 @@ class Model(dict, metaclass=ModelMetaClass):
                                   args=values + [getattr(self, self.__primary_key__, None)])
         if rows != 1:
             logging.warning('failed to insert record: affected rows: %s' % rows)
-
 
     async def delete(self):
         pass
@@ -145,7 +147,7 @@ class PreQuery:
     预查询对象 通过fetch执行
     """
 
-    def __init__(self, model:Model, sql='', args=None):
+    def __init__(self, model: Model, sql='', args=None):
         """
 
         :param model: 表名
@@ -166,7 +168,7 @@ class PreQuery:
         return self._sql
 
     @sql.setter
-    def sql(self, value:str):
+    def sql(self, value: str):
         self._sql = self.sql + value
 
     @property
@@ -193,7 +195,7 @@ class PreQuery:
         """
         pass
 
-    def order(self, filed, desc = True):
+    def order(self, filed, desc=True):
         """
         数量限制
         :param num:
