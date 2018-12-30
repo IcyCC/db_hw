@@ -20,6 +20,7 @@ class Transaction(object):
     @classmethod
     async def begin(cls):
         con = await conn.get_conn()
+        await con.begin()
         return Transaction(con)
 
     async def commit(self):
