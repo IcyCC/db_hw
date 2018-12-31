@@ -15,7 +15,33 @@ class Cond(object):
         return " ".join([self.field, self.op, "?"])
 
     def args(self):
-        return [self.value] 
+        return [self.value]
+
+
+class Multi_cond(Cond):
+    def __init__(self, logic, *conds):
+        self._sql = " ( " + conds[0].sql() + " "
+        self._args = conds[0].args()
+        for i in range(1, len(conds)):
+            self._sql +=  " " + logic + " " + conds[i].sql() + " "
+            self._args += conds[i].args()
+        self._sql += " ) "
+
+    def sql(self):
+        return self._sql
+
+    def args(self):
+        return self._args
+
+
+def AND_(*conds):
+    return Multi_cond("AND", *conds)
+
+def OR_(*conds):
+    return Multi_cond("OR", *conds)
+
+def XOR_(*conds):
+    return Multi_cond("XOR", *conds)
 
 
 class Field(object):

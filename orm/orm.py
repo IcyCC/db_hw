@@ -192,11 +192,11 @@ class PreQuery:
     def where(self, cond):
         """
         条件限制
-        :param conds:
+        :param cond:
         :return: PreQuery
         """
         query = copy.copy(self)
-        query.append_sql(cond.sql())
+        query.append_sql(" WHERE " + cond.sql())
         query.append_args(cond.args())
         return query
 
@@ -212,7 +212,7 @@ class PreQuery:
         return query
 
     def order(self, field, desc = False):
-         """
+        """
         数量限制
         :param num:
         :return: PreQuery
