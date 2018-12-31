@@ -1,7 +1,7 @@
 import logging
 import copy
 from . import conn
-from .feild import *
+from .field import *
 
 
 class ModelMetaClass(type):
