@@ -44,7 +44,6 @@ def XOR_(*conds):
     return Multi_cond("XOR", *conds)
 
 
-
 class Field(object):
     """
     处理字段相关逻辑
