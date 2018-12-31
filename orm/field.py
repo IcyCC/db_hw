@@ -18,7 +18,7 @@ class Cond(object):
         return [self.value]
 
 
-class Multi_cond(Cond):
+class MultiCond(Cond):
     def __init__(self, logic, *conds):
         self._sql = " ( " + conds[0].sql() + " "
         self._args = conds[0].args()
@@ -35,14 +35,13 @@ class Multi_cond(Cond):
 
 
 def AND_(*conds):
-    return Multi_cond("AND", *conds)
+    return MultiCond("AND", *conds)
 
 def OR_(*conds):
-    return Multi_cond("OR", *conds)
+    return MultiCond("OR", *conds)
 
 def XOR_(*conds):
-    return Multi_cond("XOR", *conds)
-
+    return MultiCond("XOR", *conds)
 
 
 class Field(object):
