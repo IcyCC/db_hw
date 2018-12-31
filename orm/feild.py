@@ -44,6 +44,7 @@ def XOR_(*conds):
     return Multi_cond("XOR", *conds)
 
 
+
 class Field(object):
     """
     处理字段相关逻辑
@@ -68,22 +69,23 @@ class Field(object):
         return column
 
     def __eq__(self, other) -> Cond:
-        return Cond(self.name, "=",  other)
+        return Cond(self.name, "=", other)
 
     def __ne__(self, other) -> Cond:
         return Cond(self.name, "<>", other)
 
     def __lt__(self, other) -> Cond:
-        return Cond(self.name, "<",  other)
+        return Cond(self.name, "<", other)
 
     def __le__(self, other) -> Cond:
         return Cond(self.name, "<=", other)
 
     def __gt__(self, other) -> Cond:
-        return Cond(self.name, ">",  other)
+        return Cond(self.name, ">", other)
 
     def __ge__(self, other) -> Cond:
         return Cond(self.name, ">=", other)
+
 
 class String(Field):
 
@@ -93,7 +95,7 @@ class String(Field):
 
 class Integer(Field):
 
-    def __init__(self, length, primary_key=False, default=None):
+    def __init__(self, length=11, primary_key=False, default=None):
         super().__init__(type="int({})".format(str(length)), primary_key=primary_key, default=default)
 
 
@@ -111,11 +113,11 @@ class TinyInteger(Field):
 
 class Datetime(Field):
 
-    def __init__(self, length, primary_key=False, default=None):
+    def __init__(self, primary_key=False, default=None):
         super().__init__(type="datetime", primary_key=primary_key, default=default)
 
 
 class Float(Field):
 
-    def __init__(self, length, dec, primary_key=False, default=None):
+    def __init__(self, length=11, dec=4, primary_key=False, default=None):
         super().__init__(type="float({},{})".format(str(length), str(dec)))
