@@ -67,6 +67,12 @@ class Field(object):
             column = column + "DEFAULT {}".format(str(self.default))
         return column
 
+    def sql(self):
+        return self.name
+
+    def args(self):
+        return []
+
     def __eq__(self, other) -> Cond:
         return Cond(self.name, "=", other)
 
