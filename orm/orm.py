@@ -2,6 +2,7 @@ import logging
 import copy
 from . import conn
 from .field import *
+from functools import wraps
 
 
 class ModelMetaClass(type):
@@ -42,6 +43,18 @@ class ModelMetaClass(type):
         :return:
         """
         return cls.__mappings__[item]
+
+
+async def ModelSync(func):
+    """
+    用于Model.save()和Model.update()方法执行后对象的主键值同步
+    """
+    @wraps(func)
+    async def wrapper(self, *args, **kwargs):
+        id = await func(self, *args, **kwargs)
+        if getattr(self, self.__primary_key__, None) != id:
+            setattr(self, self.__primary_key__, id)
+    return wrapper
 
 
 class Model(dict, metaclass=ModelMetaClass):
@@ -97,6 +110,7 @@ class Model(dict, metaclass=ModelMetaClass):
 
         return result
 
+    @ModelSync
     async def save(self, tx=None):
         keys = list()
         mappings = self.__mappings__
@@ -108,7 +122,7 @@ class Model(dict, metaclass=ModelMetaClass):
         values = self.get_args_by_fields(keys)
         if getattr(self, self.__primary_key__, None) is None:
 
-            rows = await conn.execute(tx, "{}({}) VALUES ({})".format(self.__insert__, ','.join(keys),
+            rows, rowid = await conn.execute(tx, "{}({}) VALUES ({})".format(self.__insert__, ','.join(keys),
                                                                       self.create_args(len(keys))),
                                       values)
         else:
@@ -116,26 +130,28 @@ class Model(dict, metaclass=ModelMetaClass):
             update_keys = list()
             for k in keys:
                 update_keys.append(str(k) + " = ? ")
-            rows = await conn.execute(tx, "{} {} WHERE {} = ?".format(self.__update__,
+            rows, rowid = await conn.execute(tx, "{} {} WHERE {} = ?".format(self.__update__,
                                                                       ','.join(update_keys),
                                                                       self.__primary_key__,
                                                                       ),
                                       values + [getattr(self, self.__primary_key__, None)])
-
         if rows != 1:
             logging.warning('failed to insert record: affected rows: %s' % rows)
+        return rowid
 
+    @ModelSync
     async def update(self, tx=None, **kwargs):
         keys = list()
         values = list()
         for k, v in kwargs.items():
             keys.append(str(k) + " = ? ")
             values.append(v)
-        rows = await conn.execute(tx,
+        rows, rowid = await conn.execute(tx,
                                   "{} {} WHERE {} = ?".format(self.__update__, ','.join(keys), self.__primary_key__),
                                   args=values + [getattr(self, self.__primary_key__, None)])
         if rows != 1:
             logging.warning('failed to insert record: affected rows: %s' % rows)
+        return rowid
 
     async def delete(self, tx=None):
         primary_key = getattr(self, self.__primary_key__, None)
