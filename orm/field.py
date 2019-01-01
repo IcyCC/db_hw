@@ -18,6 +18,32 @@ class Cond(object):
         return [self.value]
 
 
+class MultiCond(Cond):
+    def __init__(self, logic, *conds):
+        self._sql = " ( " + conds[0].sql() + " "
+        self._args = conds[0].args()
+        for i in range(1, len(conds)):
+            self._sql +=  " " + logic + " " + conds[i].sql() + " "
+            self._args += conds[i].args()
+        self._sql += " ) "
+
+    def sql(self):
+        return self._sql
+
+    def args(self):
+        return self._args
+
+
+def AND_(*conds):
+    return MultiCond("AND", *conds)
+
+def OR_(*conds):
+    return MultiCond("OR", *conds)
+
+def XOR_(*conds):
+    return MultiCond("XOR", *conds)
+
+
 class Field(object):
     """
     处理字段相关逻辑
@@ -40,6 +66,12 @@ class Field(object):
         if self.default is not None:
             column = column + "DEFAULT {}".format(str(self.default))
         return column
+
+    def sql(self):
+        return self.name
+
+    def args(self):
+        return []
 
     def __eq__(self, other) -> Cond:
         return Cond(self.name, "=", other)

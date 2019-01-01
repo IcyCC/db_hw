@@ -1,7 +1,7 @@
 import logging
 import copy
 from . import conn
-from .feild import *
+from .field import *
 
 
 class ModelMetaClass(type):
@@ -211,12 +211,48 @@ class PreQuery:
     def where(self, cond):
         """
         条件限制
-        :param conds:
+        :param cond:
         :return: PreQuery
         """
         query = copy.copy(self)
-        query.append_sql(' WHERE ' + cond.sql())
+        query.append_sql(" WHERE " + cond.sql())
         query.append_args(cond.args())
+        return query
+
+    def between(self, begin, end):
+        """
+        范围限制
+        :param begin,end:
+        :return: PreQuery
+        """
+        query = copy.copy(self)
+        query.append_sql(" BETWEEN ? AND ? ")
+        query.append_args([begin, end])
+        return query
+
+    def like(self, expr):
+        """
+        形式限制
+        :param begin,end:
+        :return: PreQuery
+        """
+        query = copy.copy(self)
+        query.append_sql(" LIKE '" + str(expr) + "' ")
+        return query
+
+    def in_(self, *args):
+        """
+        范围限制
+        :param begin,end:
+        :return: PreQuery
+        """
+        query = copy.copy(self)
+        query.append_sql(" IN ( ? ")
+        query.append_args([args[0]])
+        for arg in args[1:]:
+            query.append_sql(", ? ")
+            query.append_args([arg])
+        query.append_sql(") ")
         return query
 
     def limit(self, num):
@@ -230,7 +266,7 @@ class PreQuery:
         query.append_sql(" limit " + str(num))
         return query
 
-    def order(self, field, desc=False):
+    def order(self, field, desc = False):
         """
         数量限制
         :param num:
