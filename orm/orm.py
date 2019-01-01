@@ -2,7 +2,6 @@ import logging
 import copy
 from . import conn
 from .field import *
-from functools import wraps
 
 
 class ModelMetaClass(type):
@@ -43,18 +42,6 @@ class ModelMetaClass(type):
         :return:
         """
         return cls.__mappings__[item]
-
-
-async def ModelSync(func):
-    """
-    用于Model.save()和Model.update()方法执行后对象的主键值同步
-    """
-    @wraps(func)
-    async def wrapper(self, *args, **kwargs):
-        id = await func(self, *args, **kwargs)
-        if getattr(self, self.__primary_key__, None) != id:
-            setattr(self, self.__primary_key__, id)
-    return wrapper
 
 
 class Model(dict, metaclass=ModelMetaClass):
@@ -110,7 +97,6 @@ class Model(dict, metaclass=ModelMetaClass):
 
         return result
 
-    @ModelSync
     async def save(self, tx=None):
         keys = list()
         mappings = self.__mappings__
@@ -135,11 +121,11 @@ class Model(dict, metaclass=ModelMetaClass):
                                                                       self.__primary_key__,
                                                                       ),
                                       values + [getattr(self, self.__primary_key__, None)])
+        if getattr(self, self.__primary_key__, None) != rowid:
+            setattr(self, self.__primary_key__, rowid)
         if rows != 1:
             logging.warning('failed to insert record: affected rows: %s' % rows)
-        return rowid
 
-    @ModelSync
     async def update(self, tx=None, **kwargs):
         keys = list()
         values = list()
@@ -149,9 +135,10 @@ class Model(dict, metaclass=ModelMetaClass):
         rows, rowid = await conn.execute(tx,
                                   "{} {} WHERE {} = ?".format(self.__update__, ','.join(keys), self.__primary_key__),
                                   args=values + [getattr(self, self.__primary_key__, None)])
+        if getattr(self, self.__primary_key__, None) != rowid:
+            setattr(self, self.__primary_key__, rowid)
         if rows != 1:
             logging.warning('failed to insert record: affected rows: %s' % rows)
-        return rowid
 
     async def delete(self, tx=None):
         primary_key = getattr(self, self.__primary_key__, None)
