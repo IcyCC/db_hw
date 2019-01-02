@@ -139,7 +139,6 @@ CREATE TABLE `litemall_collect` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL DEFAULT '0' COMMENT '用户表的用户ID',
   `value_id` int(11) NOT NULL DEFAULT '0' COMMENT '如果type=0，则是商品ID；如果type=1，则是专题ID',
-  `type` tinyint(3) NOT NULL DEFAULT '0' COMMENT '收藏类型，如果type=0，则是商品ID；如果type=1，则是专题ID',
   `add_time` datetime DEFAULT NULL COMMENT '创建时间',
   `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
   `deleted_at` tinyint(1) DEFAULT '0' COMMENT '逻辑删除',
@@ -158,8 +157,6 @@ DROP TABLE IF EXISTS `litemall_comment`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `litemall_comment` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `value_id` int(11) NOT NULL DEFAULT '0' COMMENT '如果type=0，则是商品评论；如果是type=1，则是专题评论。',
-  `type` tinyint(3) NOT NULL DEFAULT '0' COMMENT '评论类型，如果type=0，则是商品评论；如果是type=1，则是专题评论；如果type=3，则是订单商品评论。',
   `content` varchar(1023) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '评论内容',
   `user_id` int(11) NOT NULL DEFAULT '0' COMMENT '用户表的用户ID',
   `has_picture` tinyint(1) DEFAULT '0' COMMENT '是否含有图片',
@@ -345,7 +342,6 @@ CREATE TABLE `litemall_order` (
   `ship_channel` varchar(63) DEFAULT NULL COMMENT '发货快递公司',
   `ship_time` datetime DEFAULT NULL COMMENT '发货开始时间',
   `confirm_time` datetime DEFAULT NULL COMMENT '用户确认收货时间',
-  `comments` smallint(6) DEFAULT '0' COMMENT '待评价订单商品数量',
   `end_time` datetime DEFAULT NULL COMMENT '订单关闭时间',
   `add_time` datetime DEFAULT NULL COMMENT '创建时间',
   `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
