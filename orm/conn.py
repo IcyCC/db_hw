@@ -45,15 +45,19 @@ async def execute(tx=None, sql=None, args=None, size=None):
             cur = await con.cursor()
             await cur.execute(sql.replace('?', '%s'), args or ())
             rs = cur.rowcount
+            id = cur.lastrowid
             await cur.close()
             print("select size {} ".format(str(rs)))
     else:
         cur = await tx.conn.cursor()
         await cur.execute(sql.replace('?', '%s'), args or ())
         rs = cur.rowcount
+        id = cur.lastrowid
         await cur.close()
         print("select size {} ".format(str(rs)))
-    return rs
+    if id is None:
+        return rs
+    return rs, id
 
 async def get_conn():
     global _pool
