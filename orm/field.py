@@ -1,5 +1,5 @@
 class Cond(object):
-
+    
     def __init__(self, field, op, value):
         """
         比较的条件
@@ -43,6 +43,16 @@ def OR_(*conds):
 def XOR_(*conds):
     return MultiCond("XOR", *conds)
 
+def NOT_(cond):
+    option = {"=" : "<>",
+              "<>": "=",
+              "!=": "=",
+              "<" : ">=",
+              ">" : "<=",
+              "<=": ">",
+              ">=": "<"}
+    cond.op = option[cond.op]
+    return cond
 
 class Field(object):
     """
