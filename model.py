@@ -86,7 +86,6 @@ class LitemallOrderGoods(orm.Model):
     product_id = orm.Integer()
     number = orm.Integer()
     price = orm.Float()
-    specifications = orm.String(length=1023)
     pic_url = orm.String(length=255)
     add_time = orm.Datetime()
     updated_at = orm.Datetime()
@@ -112,8 +111,6 @@ class LitemallCategory(orm.Model):
 class LitemallComment(orm.Model):
     __tablename__ = 'litemall_comment'
     id = orm.Integer(primary_key=True)
-    value_id = orm.Integer()
-    type = orm.TinyInteger(length=3)
     content = orm.String(length=1023)
     user_id = orm.Integer()
     has_picture = orm.TinyInteger(length=1)
@@ -143,7 +140,7 @@ class LitemallGoodsProduct(orm.Model):
     __tablename__ = 'litemall_goods_product'
     id = orm.Integer(primary_key=True)
     goods_id = orm.Integer()
-    specifications = orm.String(length=1023)
+    specification = orm.String(length=255)
     price = orm.Float()
     number = orm.Integer()
     url = orm.String(length=125)
@@ -232,7 +229,6 @@ class LitemallCart(orm.Model):
     product_id = orm.Integer()
     price = orm.Float()
     number = orm.Integer()
-    specifications = orm.String(length=1023)
     checked = orm.TinyInteger(length=1)
     pic_url = orm.String(length=255)
     add_time = orm.Datetime()
