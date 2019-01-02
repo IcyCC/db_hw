@@ -8,7 +8,7 @@ class Templ(orm.Model):
 
 
 class LitemallFootPrints(orm.Model):
-    __tablename__ = 'litem_foot_prints'
+    __tablename__ = 'litemall_foot_prints'
     id = orm.Integer(primary_key=True)
     user_id = orm.Integer()
     goods_id = orm.Integer()
@@ -31,7 +31,7 @@ class LitemallAdmin(orm.Model):
 
 
 class LitemallAddress(orm.Model):
-    __tablename__ = 'litem_foot_prints'
+    __tablename__ = 'litemall_address'
     id = orm.Integer(primary_key=True)
     name = orm.String(length=63)
     user_id = orm.Integer()
@@ -43,8 +43,8 @@ class LitemallAddress(orm.Model):
     deleted_at = orm.TinyInteger(length=1)
 
 
-class LitemallGoodsSpecfication(orm.Model):
-    __tablename__ = 'litemall_foot_prints'
+class LitemallGoodsSpecification(orm.Model):
+    __tablename__ = 'litemall_goods_specification'
     id = orm.Integer(primary_key=True)
     goods_id = orm.Integer()
     specification = orm.String(length=255)
@@ -56,7 +56,7 @@ class LitemallGoodsSpecfication(orm.Model):
 
 
 class LitemallBrand(orm.Model):
-    __tablename__ = 'litem_foot_prints'
+    __tablename__ = 'litemall_brand'
     id = orm.Integer(primary_key=True)
     name = orm.String(length=255)
     desc = orm.String(length=255)
@@ -67,7 +67,7 @@ class LitemallBrand(orm.Model):
 
 
 class LitemallCollect(orm.Model):
-    __tablename__ = 'litem_foot_prints'
+    __tablename__ = 'litemall_collect'
     id = orm.Integer(primary_key=True)
     user_id = orm.Integer()
     value_id = orm.Integer()
@@ -78,7 +78,7 @@ class LitemallCollect(orm.Model):
 
 
 class LitemallOrderGoods(orm.Model):
-    __tablename__ = 'litem_foot_prints'
+    __tablename__ = 'litemall_order_goods'
     id = orm.Integer(primary_key=True)
     order_id = orm.Integer()
     goods_id = orm.Integer()
@@ -95,7 +95,7 @@ class LitemallOrderGoods(orm.Model):
 
 
 class LitemallCategory(orm.Model):
-    __tablename__ = 'litem_foot_prints'
+    __tablename__ = 'litemall_category'
     id = orm.Integer(primary_key=True)
     name = orm.String(length=63)
     keywords = orm.String(length=1023)
@@ -111,7 +111,7 @@ class LitemallCategory(orm.Model):
 
 
 class LitemallComment(orm.Model):
-    __tablename__ = 'litem_foot_prints'
+    __tablename__ = 'litemall_comment'
     id = orm.Integer(primary_key=True)
     value_id = orm.Integer()
     type = orm.TinyInteger(length=3)
@@ -126,7 +126,7 @@ class LitemallComment(orm.Model):
 
 
 class LitemallCouponUser(orm.Model):
-    __tablename__ = 'litem_foot_prints'
+    __tablename__ = 'litemall_coupon_user'
     id = orm.Integer(primary_key=True)
     user_id = orm.Integer()
     coupon_id = orm.Integer()
@@ -141,7 +141,7 @@ class LitemallCouponUser(orm.Model):
 
 
 class LitemallGoodsProduct(orm.Model):
-    __tablename__ = 'litem_foot_prints'
+    __tablename__ = 'litemall_goods_product'
     id = orm.Integer(primary_key=True)
     goods_id = orm.Integer()
     specifications = orm.String(length=1023)
@@ -154,7 +154,7 @@ class LitemallGoodsProduct(orm.Model):
 
 
 class LitemallOrder(orm.Model):
-    __tablename__ = 'litem_foot_prints'
+    __tablename__ = 'litemall_order'
     id = orm.Integer(primary_key=True)
     user_id = orm.Integer()
     order_sn = orm.String(length=63)
@@ -179,7 +179,7 @@ class LitemallOrder(orm.Model):
 
 
 class LitemallCoupon(orm.Model):
-    __tablename__ = 'litem_foot_prints'
+    __tablename__ = 'litemall_coupon'
     id = orm.Integer(primary_key=True)
     name = orm.String(length=63)
     desc = orm.String(length=127)
@@ -203,7 +203,7 @@ class LitemallCoupon(orm.Model):
 
 
 class LitemallGoods(orm.Model):
-    __tablename__ = 'litem_foot_prints'
+    __tablename__ = 'litemall_goods'
     id = orm.Integer(primary_key=True)
     goods_sn = orm.String(length=63)
     name = orm.String(length=127)
@@ -225,7 +225,7 @@ class LitemallGoods(orm.Model):
 
 
 class LitemallCart(orm.Model):
-    __tablename__ = 'litem_foot_prints'
+    __tablename__ = 'litemall_cart'
     id = orm.Integer(primary_key=True)
     user_id = orm.Integer()
     goods_id = orm.Integer()
@@ -243,7 +243,7 @@ class LitemallCart(orm.Model):
 
 
 class LitemallUser(orm.Model):
-    __tablename__ = 'litem_foot_prints'
+    __tablename__ = 'litemall_user'
     id = orm.Integer(primary_key=True)
     username = orm.String(length=63)
     password = orm.String(length=63)
