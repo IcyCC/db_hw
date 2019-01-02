@@ -235,6 +235,17 @@ class PreQuery:
         query.append_args([begin, end])
         return query
 
+    def not_between(self, begin, end):
+        """
+        范围限制
+        :param begin,end:
+        :return: PreQuery
+        """
+        query = copy.copy(self)
+        query.append_sql(" NOT BETWEEN ? AND ? ")
+        query.append_args([begin, end])
+        return query
+
     def like(self, expr):
         """
         形式限制
@@ -245,6 +256,16 @@ class PreQuery:
         query.append_sql(" LIKE '" + str(expr) + "' ")
         return query
 
+    def not_like(self, expr):
+        """
+        形式限制
+        :param begin,end:
+        :return: PreQuery
+        """
+        query = copy.copy(self)
+        query.append_sql(" NOT LIKE '" + str(expr) + "' ")
+        return query
+
     def in_(self, *args):
         """
         范围限制
@@ -253,6 +274,21 @@ class PreQuery:
         """
         query = copy.copy(self)
         query.append_sql(" IN ( ? ")
+        query.append_args([args[0]])
+        for arg in args[1:]:
+            query.append_sql(", ? ")
+            query.append_args([arg])
+        query.append_sql(") ")
+        return query
+
+    def not_in(self, *args):
+        """
+        范围限制
+        :param begin,end:
+        :return: PreQuery
+        """
+        query = copy.copy(self)
+        query.append_sql(" NOT IN ( ? ")
         query.append_args([args[0]])
         for arg in args[1:]:
             query.append_sql(", ? ")
