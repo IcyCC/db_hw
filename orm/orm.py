@@ -170,8 +170,6 @@ class Model(dict, metaclass=ModelMetaClass):
         values = list()
         for key in keys:
             v = getattr(self, key, None)
-            if v is None:
-                raise Exception("value is None")
             values.append(v)
         return values
 
