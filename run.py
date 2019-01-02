@@ -28,3 +28,6 @@ class Templ(orm.Model):
 t1 = Templ(name='a')
 type(t1.name)
 loop.run_until_complete(t1.save())
+t1.name = 'c'
+loop.run_until_complete(t1.save())
+t1

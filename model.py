@@ -2,8 +2,8 @@ from orm import orm
 
 
 class Templ(orm.Model):
-    __tablename__ = 'emacs'
-    id = orm.Integer()
+    __tablename__ = 'templs'
+    id = orm.Integer(primary_key=True)
     name = orm.String(length=32)
 
 

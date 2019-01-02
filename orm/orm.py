@@ -24,6 +24,9 @@ class ModelMetaClass(type):
         for k in mappings.keys():
             attrs.pop(k)
 
+        if not primary_key:
+            raise Exception("Model should have one primary_key!")
+
         if attrs.get('__tablename__', None) is None:
             attrs['__tablename__'] = str(name).lower()
         attrs['__primary_key__'] = primary_key
@@ -109,22 +112,22 @@ class Model(dict, metaclass=ModelMetaClass):
         if getattr(self, self.__primary_key__, None) is None:
 
             rows, rowid = await conn.execute(tx, "{}({}) VALUES ({})".format(self.__insert__, ','.join(keys),
-                                                                      self.create_args(len(keys))),
-                                      values)
+                                                                             self.create_args(len(keys))),
+                                             values)
+            if getattr(self, self.__primary_key__, None) != rowid:
+                setattr(self, self.__primary_key__, rowid)
         else:
             # 主键有值 更新
             update_keys = list()
             for k in keys:
                 update_keys.append(str(k) + " = ? ")
             rows, rowid = await conn.execute(tx, "{} {} WHERE {} = ?".format(self.__update__,
-                                                                      ','.join(update_keys),
-                                                                      self.__primary_key__,
-                                                                      ),
-                                      values + [getattr(self, self.__primary_key__, None)])
-        if getattr(self, self.__primary_key__, None) != rowid:
-            setattr(self, self.__primary_key__, rowid)
-        if rows != 1:
-            logging.warning('failed to insert record: affected rows: %s' % rows)
+                                                                             ','.join(update_keys),
+                                                                             self.__primary_key__,
+                                                                             ),
+                                             values + [getattr(self, self.__primary_key__, None)])
+        if rows < 1:
+            logging.warning('failed to insert record: affected rows: %s' % str(rows))
 
     async def update(self, tx=None, **kwargs):
         keys = list()
@@ -133,12 +136,13 @@ class Model(dict, metaclass=ModelMetaClass):
             keys.append(str(k) + " = ? ")
             values.append(v)
         rows, rowid = await conn.execute(tx,
-                                  "{} {} WHERE {} = ?".format(self.__update__, ','.join(keys), self.__primary_key__),
-                                  args=values + [getattr(self, self.__primary_key__, None)])
+                                         "{} {} WHERE {} = ?".format(self.__update__, ','.join(keys),
+                                                                     self.__primary_key__),
+                                         args=values + [getattr(self, self.__primary_key__, None)])
         if getattr(self, self.__primary_key__, None) != rowid:
             setattr(self, self.__primary_key__, rowid)
         if rows != 1:
-            logging.warning('failed to insert record: affected rows: %s' % rows)
+            logging.warning('failed to insert record: affected rows: %s' % str(rows))
 
     async def delete(self, tx=None):
         primary_key = getattr(self, self.__primary_key__, None)
@@ -150,7 +154,7 @@ class Model(dict, metaclass=ModelMetaClass):
             rows = await conn.execute(tx, "{} WHERE {} = ?".format(self.__delete_s__, self.__primary_key__),
                                       [primary_key])
         if rows != 1:
-            logging.warning('failed to delete record: affected rows: %s' % rows)
+            logging.warning('failed to delete record: affected rows: %s' % str(rows))
 
     @classmethod
     async def create_table(cls, coding="utf-8"):
@@ -267,7 +271,7 @@ class PreQuery:
         query.append_sql(" limit " + str(num))
         return query
 
-    def order(self, field, desc = False):
+    def order(self, field, desc=False):
         """
         数量限制
         :param num:
