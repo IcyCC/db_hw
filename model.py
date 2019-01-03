@@ -1,5 +1,6 @@
 import datetime
 import orm
+import asyncio
 
 
 class Templ(orm.Model):
@@ -9,20 +10,24 @@ class Templ(orm.Model):
 
 
 class BaseModel(orm.Model):
+
+    def __init__(self, **kwargs):
+        super(BaseModel, self).__init__(**kwargs)
+        orm.event_bus.add_table_event(self,
+                                      'CREATED', self.on_base_model_created)
+        orm.event_bus.add_table_event(self,
+                                      'UPDATED', self.on_base_model_update)
+
     id = orm.Integer(primary_key=True)
     add_time = orm.Datetime()
     updated_at = orm.Datetime()
     deleted_at = orm.Datetime()
 
+    def on_base_model_created(self, event, *args, **kwargs):
+        args[0].add_time = datetime.datetime.now()
 
-@BaseModel.add_event('CREATED')
-def on_base_model_created(table):
-    table.add_time = datetime.datetime.now()
-
-
-@BaseModel.add_event('UPDATED')
-def on_base_model_created(table):
-    table.updated_at = datetime.datetime.now()
+    def on_base_model_update(self, event, *args, **kwargs):
+        args[0].updated_at = datetime.datetime.now()
 
 
 class LitemallFootprint(BaseModel):
@@ -55,7 +60,6 @@ class LitemallGoodsSpecification(BaseModel):
     specification = orm.String(length=255)
     value = orm.String(length=255)
     pic_url = orm.String(length=255)
-
 
 
 class LitemallBrand(BaseModel):
@@ -93,7 +97,6 @@ class LitemallCategory(BaseModel):
     pic_url = orm.String(length=255)
     level = orm.String(length=255)
     sort_order = orm.TinyInteger(length=3)
-
 
 
 class LitemallComment(BaseModel):
@@ -144,7 +147,6 @@ class LitemallOrder(BaseModel):
     ship_time = orm.Datetime()
     confirm_time = orm.Datetime()
     end_time = orm.Datetime()
-
 
 
 class LitemallCoupon(BaseModel):
