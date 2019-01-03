@@ -39,6 +39,7 @@ class ModelMetaClass(type):
         attrs['__insert__'] = "INSERT INTO {} ".format(attrs['__tablename__'])
         attrs['__update__'] = "UPDATE {} SET ".format(attrs['__tablename__'])
         attrs['__delete_s__'] = "DELETE FROM {} ".format(attrs['__tablename__'])
+        attrs['__count__']  = "SELECT COUNT(*) FROM {}".format(attrs['__tablename__'])
 
         return type.__new__(cls, name, bases, attrs)
 
@@ -122,6 +123,7 @@ class Model(dict, metaclass=ModelMetaClass):
             keys.append(key)
         values = self.get_args_by_fields(keys)
         if getattr(self, self.__primary_key__, None) is None:
+            import pdb;pdb.set_trace()
 
             rows, rowid = await conn.execute(tx, "{}({}) VALUES ({})".format(self.__insert__, ','.join(keys),
                                                                              self.create_args(len(keys))),
