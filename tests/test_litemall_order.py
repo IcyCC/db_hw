@@ -5,7 +5,7 @@ import orm
 sql_config = dict(host='localhost',
                   port=3306,
                   user='root',
-                  password='4964',
+                  password='Root!!2018',
                   db='litemall',
                   charset='utf8',
                   autocommit=True,
