@@ -62,9 +62,9 @@ class Model(dict, metaclass=ModelMetaClass):
 
     def __init__(self, **kwargs):
 
-        for k in self.__mappings__.keys():
+        for k, v in self.__mappings__.items():
             if k not in kwargs:
-                kwargs[k] = None
+                kwargs[k] = v.default
 
         super(Model, self).__init__(**kwargs)
 
