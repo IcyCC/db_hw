@@ -57,7 +57,7 @@ class TestLitemallCart(asynctest.TestCase):
 
     async def high_query(self):
         res = model.LitemallCart.query().where(orm.AND_(model.LitemallCart.user_id == 1,
-                                                         model.LitemallCart.goods_price == 5500)).order('id', True).limit(1)
+                                                        orm.NOT_(model.LitemallCart.goods_price == 5500))).order('id', True).limit(1)
         self.assertEqual(len(res), 0)
 
     async def test_delete(self):

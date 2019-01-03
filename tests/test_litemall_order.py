@@ -65,8 +65,7 @@ class TestLitemallOrder(asynctest.TestCase):
         await e2.delete()
 
     async def high_query(self):
-        res = model.LitemallOrder.query().where(orm.AND_(model.LitemallOrder.user_id == 1,
-                                                         model.LitemallOrder.goods_price == 5500)).order('id', True).limit(1)
+        res = model.LitemallOrder.query().where(model.LitemallOrder.user_id.between(0, 100)).order('id', True).limit(1)
         self.assertEqual(len(res), 1)
 
     async def test_delete(self):

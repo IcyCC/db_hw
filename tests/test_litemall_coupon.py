@@ -62,9 +62,8 @@ class TestLitemallCoupon(asynctest.TestCase):
         await e2.delete()
 
     async def high_query(self):
-        res = model.LitemallCoupon.query().where(orm.AND_(model.LitemallCoupon.description == '优惠券',
-                                                          model.LitemallCoupon.total == 100)).order('id', True).limit(1)
-        self.assertEqual(len(res), 1)
+        res = model.LitemallCoupon.query().where(orm.NOT_(model.LitemallCoupon.description.in_(['优惠券', 'xxx']))).order('id', True).limit(1)
+        self.assertEqual(len(res), 0)
 
     async def test_delete(self):
         e1 = await model.LitemallCoupon.find_by(limitation = 3)

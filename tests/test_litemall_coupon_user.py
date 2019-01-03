@@ -35,15 +35,21 @@ class TestLitemallCouponUser(asynctest.TestCase):
         self.assertEqual(e1.id, e2.id)
 
     async def test_update(self):
-        e1 = await  model.LitemallCouponUser.find_by(user_id = 1)
+        e1 = model.LitemallCouponUser(
+            user_id = 2,
+            coupon_id = 1,
+            status = 0,
+        )
+        await  e1.save()
+        e1 = await  model.LitemallCouponUser.find_by(user_id = 2)
         e1.status = 1
         await e1.save()
         e2 = await model.LitemallCouponUser.find_by(id = e1.id)
         self.assertEqual(e2.status, 1)
 
     async def high_query(self):
-        res = model.LitemallCouponUser.query().where(model.LitemallCouponUser.user_id == 1).order('id', True).limit(1)
-        self.assertEqual(len(res), 1)
+        res = model.LitemallCouponUser.query().where(orm.NOT_(model.LitemallCouponUser.user_id.between(0, 100))).order('id', True).limit(1)
+        self.assertEqual(len(res), 0)
 
     async def test_delete(self):
         e1 = await model.LitemallCouponUser.find_by(user_id = 1)
