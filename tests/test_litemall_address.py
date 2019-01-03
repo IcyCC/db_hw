@@ -69,7 +69,7 @@ class TestLitemallAddress(asynctest.TestCase):
         e2 = await model.LitemallAddress.find_by(id=3)
         self.assertIsNone(e2, None)
 
-    async def high_query(self):
+    async def test_high_query(self):
         for i in range(5):
             await model.LitemallAddress(
                 name = 'test_address' + str(i),
@@ -78,6 +78,6 @@ class TestLitemallAddress(asynctest.TestCase):
                 mobile = '13112345678',
                 is_default = 1
             ).save()
-        sql = model.LitemallAddress.query().where(model.LitemallAddress.address == 'somepalce').limit(3)
+        sql = model.LitemallAddress.query().where(model.LitemallAddress.address == 'someplace').limit(3)
         res = await sql.fetch()
         self.assertEqual(len(res), 3)

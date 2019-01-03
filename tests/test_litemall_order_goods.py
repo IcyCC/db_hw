@@ -78,7 +78,7 @@ class TestLitemallOrderGoods(asynctest.TestCase):
         e2 = await model.LitemallOrderGoods.find_by(id=3)
         self.assertIsNone(e2, None)
 
-    async def high_query(self):
+    async def test_high_query(self):
         for i in range(5):
             await model.LitemallOrderGoods(
                 order_id = i,
@@ -90,6 +90,6 @@ class TestLitemallOrderGoods(asynctest.TestCase):
                 price = 3.88,
                 pic_url = 'test.png'
             ).save()
-        sql = model.LitemallOrderGoods.query().where(model.LitemallOrderGoods.goods_name == 'test5')
+        sql = model.LitemallOrderGoods.query().where(model.LitemallOrderGoods.goods_name == 'test4')
         res = await sql.fetch()
         self.assertEqual(len(res), 1)
