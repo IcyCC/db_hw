@@ -39,7 +39,7 @@ class ModelMetaClass(type):
         attrs['__insert__'] = "INSERT INTO {} ".format(attrs['__tablename__'])
         attrs['__update__'] = "UPDATE {} SET ".format(attrs['__tablename__'])
         attrs['__delete_s__'] = "DELETE FROM {} ".format(attrs['__tablename__'])
-        attrs['__count__']  = "SELECT COUNT(*) FROM {}".format(attrs['__tablename__'])
+        attrs['__count__'] = "SELECT COUNT(*) FROM {}".format(attrs['__tablename__'])
 
         return type.__new__(cls, name, bases, attrs)
 
@@ -51,8 +51,31 @@ class ModelMetaClass(type):
         """
         return cls.__mappings__[item]
 
-    def add_event(cls, field: Field, action: str, listener):
-        event_bus.add_listener(TriggerEvent(cls.__tablename__, field.name, action), listener)
+    def add_field_event(cls, field: Field, action: str):
+        """
+        增加一个字段的event
+        :param field:
+        :param action:
+        :return:
+        """
+
+        def wrapper(func):
+            event_bus.add_listener(TriggerEvent(cls.__tablename__, field.name, action), func)
+            return func
+
+        return wrapper
+
+    def add_table_event(cls, action):
+        """
+        增加一个表的event
+        :param action:
+        :return:
+        """
+        def wrapper(func):
+            event_bus.add_listener(TriggerEvent(cls.__tablename__, '*', action), func)
+            return func
+
+        return wrapper
 
 
 class Model(dict, metaclass=ModelMetaClass):
@@ -72,11 +95,11 @@ class Model(dict, metaclass=ModelMetaClass):
         return self.get(item, None)
 
     def __setattr__(self, key, value):
-        asyncio.ensure_future(event_bus.publish(TriggerEvent(
+        event_bus.publish(TriggerEvent(
             self.__tablename__,
             key,
             'SET'
-        )))
+        ))
         self[key] = value
 
     @classmethod
@@ -124,6 +147,8 @@ class Model(dict, metaclass=ModelMetaClass):
         values = self.get_args_by_fields(keys)
         if getattr(self, self.__primary_key__, None) is None:
 
+            event_bus.publish(TriggerEvent(self.__tablename__, '*', 'UPDATE'), self)
+
             rows, rowid = await conn.execute(tx, "{}({}) VALUES ({})".format(self.__insert__, ','.join(keys),
                                                                              self.create_args(len(keys))),
                                              values)
@@ -134,6 +159,8 @@ class Model(dict, metaclass=ModelMetaClass):
             update_keys = list()
             for k in keys:
                 update_keys.append(str(k) + " = ? ")
+
+            event_bus.publish(TriggerEvent(self.__tablename__, '*', 'CREATED'), self)
             rows, rowid = await conn.execute(tx, "{} {} WHERE {} = ?".format(self.__update__,
                                                                              ','.join(update_keys),
                                                                              self.__primary_key__,
@@ -148,6 +175,7 @@ class Model(dict, metaclass=ModelMetaClass):
         for k, v in kwargs.items():
             keys.append(str(k) + " = ? ")
             values.append(v)
+        event_bus.publish(TriggerEvent(self.__tablename__, '*', 'UPDATE'), self)
         rows, rowid = await conn.execute(tx,
                                          "{} {} WHERE {} = ?".format(self.__update__, ','.join(keys),
                                                                      self.__primary_key__),
@@ -164,6 +192,7 @@ class Model(dict, metaclass=ModelMetaClass):
             return False
         else:
             # 主键有值 删除
+            event_bus.publish(TriggerEvent(self.__tablename__, '*', 'DELTED'), self)
             rows = await conn.execute(tx, "{} WHERE {} = ?".format(self.__delete_s__, self.__primary_key__),
                                       [primary_key])
         if rows != 1:
