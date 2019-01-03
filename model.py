@@ -103,6 +103,7 @@ class LitemallComment(BaseModel):
     __tablename__ = 'litemall_comment'
     content = orm.String(length=1023)
     user_id = orm.Integer()
+    good_id = orm.Integer()
     has_picture = orm.TinyInteger(length=1)
     pic_urls = orm.String(length=1023)
     star = orm.Integer()

@@ -11,7 +11,8 @@ sql_config = dict(host='localhost',
                   autocommit=True,
                   maxsize=10,
                   minsize=1,
-)
+                  )
+
                   
 
 
