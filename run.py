@@ -19,15 +19,3 @@ loop.run_until_complete(orm.conn.connection(
     **sql_config
 ))
 
-
-class Templ(orm.Model):
-    __tablename__ = 'templs'
-    id = orm.Integer(length=11, primary_key=True)
-    name = orm.String(length=32)
-
-t1 = Templ(name='a')
-type(t1.name)
-loop.run_until_complete(t1.save())
-t1.name = 'c'
-loop.run_until_complete(t1.save())
-t1

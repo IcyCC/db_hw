@@ -72,7 +72,7 @@ class Model(dict, metaclass=ModelMetaClass):
         return self.get(item, None)
 
     def __setattr__(self, key, value):
-        loop.run_until_complete(event_bus.publish(TriggerEvent(
+        asyncio.ensure_future(event_bus.publish(TriggerEvent(
             self.__tablename__,
             key,
             'SET'
@@ -123,7 +123,6 @@ class Model(dict, metaclass=ModelMetaClass):
             keys.append(key)
         values = self.get_args_by_fields(keys)
         if getattr(self, self.__primary_key__, None) is None:
-            import pdb;pdb.set_trace()
 
             rows, rowid = await conn.execute(tx, "{}({}) VALUES ({})".format(self.__insert__, ','.join(keys),
                                                                              self.create_args(len(keys))),
@@ -207,8 +206,6 @@ class PreQuery:
         self._model = model
         if args is None:
             args = list()
-        if not sql:
-            sql = model.__select__
         self._sql = sql
         self._args = args
 
@@ -263,8 +260,12 @@ class PreQuery:
         return query
 
     async def fetch(self):
-        rows = await conn.select(sql=self.sql(), args=self.args(), size=None)
+        rows = await conn.select(sql=self._model.__select__ + self.sql(), args=self.args(), size=None)
         result = list()
         for r in rows:
             result.append(self._model(**r))
         return result
+
+    async def count(self):
+        rows = await conn.select(sql=self._model.__count__ + self.sql(), args=self.args(), size=None)
+        return rows[0].get('COUNT(*)', 0)

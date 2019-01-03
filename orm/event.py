@@ -31,8 +31,9 @@ class EventBus(object):
         :param kwargs:
         :return:
         """
-        listeners = self._listeners[str(event)]
-        asyncio.gather([l(event, **kwargs) for l in listeners], self.loop)
+        listeners = self._listeners.get(str(event), None)
+        if listeners:
+            asyncio.gather(*[l(event, **kwargs) for l in listeners], self.loop)
 
     def add_listener(self, event: TriggerEvent, func):
         if not self._listeners.get(str(event)):
@@ -40,4 +41,4 @@ class EventBus(object):
         self._listeners[str(event)].append(func)
 
 
-event_bus = EventBus()
+event_bus = EventBus(asyncio.get_event_loop())
