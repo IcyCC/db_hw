@@ -22,7 +22,6 @@ class TestLitemallCart(asynctest.TestCase):
             loop=self.loop,
             **sql_config
         ))
-        
 
     async def test_create(self):
         e1 = model.LitemallCart(
