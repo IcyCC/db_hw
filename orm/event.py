@@ -33,7 +33,7 @@ class EventBus(object):
         """
         listeners = self._listeners.get(str(event), None)
         if listeners:
-            asyncio.gather(*[l(event, **kwargs) for l in listeners], self.loop)
+            await asyncio.gather(*[l(event, **kwargs) for l in listeners], self.loop)
 
     def add_listener(self, event: TriggerEvent, func):
         if not self._listeners.get(str(event)):
