@@ -25,8 +25,8 @@ class Transaction(object):
 
     async def commit(self):
         await self.conn.commit()
-        await self.conn.close()
+        self.conn.close()
 
     async def roll_back(self):
-        await self.conn.roll_back()
-        await self.conn.close()
+        await self.conn.rollback()
+        self.conn.close()

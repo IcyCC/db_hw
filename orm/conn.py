@@ -61,4 +61,4 @@ async def execute(tx=None, sql=None, args=None, size=None):
 
 async def get_conn():
     global _pool
-    return await _pool.get()
+    return await _pool.acquire()
