@@ -123,7 +123,7 @@ CREATE TABLE `litemall_category` (
   `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
   `deleted_at` tinyint(1) DEFAULT '0' COMMENT '逻辑删除',
   PRIMARY KEY (`id`),
-  KEY `parent_id` (`pid`)
+  KEY `parent_idx` (`pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1036007 DEFAULT CHARSET=utf8mb4 COMMENT='类目表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -137,13 +137,13 @@ DROP TABLE IF EXISTS `litemall_collect`;
 CREATE TABLE `litemall_collect` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL DEFAULT '0' COMMENT '用户表的用户ID',
-  `value_id` int(11) NOT NULL DEFAULT '0' COMMENT '如果type=0，则是商品ID；如果type=1，则是专题ID',
+  `value_id` int(11) NOT NULL DEFAULT '0' COMMENT '商品ID',
   `add_time` datetime DEFAULT NULL COMMENT '创建时间',
   `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
   `deleted_at` tinyint(1) DEFAULT '0' COMMENT '逻辑删除',
   PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`),
-  KEY `goods_id` (`value_id`)
+  KEY `user_idx` (`user_id`),
+  KEY `value_idx` (`value_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='收藏表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -165,7 +165,6 @@ CREATE TABLE `litemall_comment` (
   `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
   `deleted_at` tinyint(1) DEFAULT '0' COMMENT '逻辑删除',
   PRIMARY KEY (`id`),
-  KEY `id_value` (`value_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1012 DEFAULT CHARSET=utf8 COMMENT='评论表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -262,17 +261,16 @@ CREATE TABLE `litemall_goods` (
   `sort_order` smallint(4) DEFAULT '100',
   `pic_url` varchar(255) DEFAULT NULL COMMENT '商品页面商品图片',
   `unit` varchar(31) DEFAULT '’件‘' COMMENT '商品单位，例如件、盒',
-  `counter_price` decimal(10,2) DEFAULT '0.00' COMMENT '专柜价格',
   `retail_price` decimal(10,2) DEFAULT '100000.00' COMMENT '零售价格',
   `detail` text COMMENT '商品详细介绍，是富文本格式',
   `add_time` datetime DEFAULT NULL COMMENT '创建时间',
   `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
   `deleted_at` tinyint(1) DEFAULT '0' COMMENT '逻辑删除',
   PRIMARY KEY (`id`),
-  KEY `goods_sn` (`goods_sn`),
-  KEY `cat_id` (`category_id`),
-  KEY `brand_id` (`brand_id`),
-  KEY `sort_order` (`sort_order`)
+  KEY `goods_sn_idx` (`goods_sn`),
+  KEY `cat_id_idx` (`category_id`),
+  KEY `brand_id_idx` (`brand_id`),
+  KEY `sort_order_idx` (`sort_order`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1181004 DEFAULT CHARSET=utf8mb4 COMMENT='商品基本信息表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -315,7 +313,7 @@ CREATE TABLE `litemall_goods_specification` (
   `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
   `deleted_at` tinyint(1) DEFAULT '0' COMMENT '逻辑删除',
   PRIMARY KEY (`id`),
-  KEY `goods_id` (`goods_id`)
+  KEY `goods_idx` (`goods_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=250 DEFAULT CHARSET=utf8mb4 COMMENT='商品规格表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -370,8 +368,8 @@ CREATE TABLE `litemall_order_goods` (
   `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
   `deleted_at` tinyint(1) DEFAULT '0' COMMENT '逻辑删除',
   PRIMARY KEY (`id`),
-  KEY `order_id` (`order_id`),
-  KEY `goods_id` (`goods_id`)
+  KEY `order_idx` (`order_id`),
+  KEY `goods_idx` (`goods_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='订单商品表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 

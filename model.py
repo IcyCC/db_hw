@@ -211,7 +211,6 @@ class LitemallGoods(orm.Model):
     sort_order = orm.Integer()
     pic_url = orm.String(length=255)
     unit = orm.String(length=31)
-    counter_price = orm.Float()
     retail_price = orm.Float()
     detail = orm.Text()
     add_time = orm.Datetime()
