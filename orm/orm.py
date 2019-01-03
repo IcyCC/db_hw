@@ -28,8 +28,13 @@ class ModelMetaClass(type):
         for k in mappings.keys():
             attrs.pop(k)
 
-        if not primary_key:
-            raise Exception("Model should have one primary_key!")
+        for b in bases:
+            if b.__name__ == 'Model':
+                continue
+            base_mapping = getattr(b, '__mappings__', {})
+            mappings.update(base_mapping)
+
+
 
         if attrs.get('__tablename__', None) is None:
             attrs['__tablename__'] = str(name).lower()
@@ -50,32 +55,6 @@ class ModelMetaClass(type):
         :return:
         """
         return cls.__mappings__[item]
-
-    def add_field_event(cls, field: Field, action: str):
-        """
-        增加一个字段的event
-        :param field:
-        :param action:
-        :return:
-        """
-
-        def wrapper(func):
-            event_bus.add_listener(TriggerEvent(cls.__tablename__, field.name, action), func)
-            return func
-
-        return wrapper
-
-    def add_table_event(cls, action):
-        """
-        增加一个表的event
-        :param action:
-        :return:
-        """
-        def wrapper(func):
-            event_bus.add_listener(TriggerEvent(cls.__tablename__, '*', action), func)
-            return func
-
-        return wrapper
 
 
 class Model(dict, metaclass=ModelMetaClass):
@@ -144,10 +123,10 @@ class Model(dict, metaclass=ModelMetaClass):
             if column.primary_key is True:
                 continue
             keys.append(key)
-        values = self.get_args_by_fields(keys)
         if getattr(self, self.__primary_key__, None) is None:
 
-            event_bus.publish(TriggerEvent(self.__tablename__, '*', 'UPDATE'), self)
+            event_bus.publish(TriggerEvent(self.__tablename__, '*', 'CREATED'), self)
+            values = self.get_args_by_fields(keys)
 
             rows, rowid = await conn.execute(tx, "{}({}) VALUES ({})".format(self.__insert__, ','.join(keys),
                                                                              self.create_args(len(keys))),
@@ -160,7 +139,8 @@ class Model(dict, metaclass=ModelMetaClass):
             for k in keys:
                 update_keys.append(str(k) + " = ? ")
 
-            event_bus.publish(TriggerEvent(self.__tablename__, '*', 'CREATED'), self)
+            event_bus.publish(TriggerEvent(self.__tablename__, '*', 'UPDATED'), self)
+            values = self.get_args_by_fields(keys)
             rows, rowid = await conn.execute(tx, "{} {} WHERE {} = ?".format(self.__update__,
                                                                              ','.join(update_keys),
                                                                              self.__primary_key__,
