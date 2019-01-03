@@ -7,8 +7,8 @@ class Templ(orm.Model):
     name = orm.String(length=32)
 
 
-class LitemallFootPrints(orm.Model):
-    __tablename__ = 'litemall_foot_prints'
+class LitemallFootprint(orm.Model):
+    __tablename__ = 'litemall_footprint'
     id = orm.Integer(primary_key=True)
     user_id = orm.Integer()
     goods_id = orm.Integer()
@@ -59,7 +59,7 @@ class LitemallBrand(orm.Model):
     __tablename__ = 'litemall_brand'
     id = orm.Integer(primary_key=True)
     name = orm.String(length=255)
-    desc = orm.String(length=255)
+    description = orm.String(length=255)
     pic_url = orm.String(length=255)
     add_time = orm.Datetime()
     updated_at = orm.Datetime()
@@ -97,7 +97,7 @@ class LitemallCategory(orm.Model):
     id = orm.Integer(primary_key=True)
     name = orm.String(length=63)
     keywords = orm.String(length=1023)
-    desc = orm.String(length=255)
+    description = orm.String(length=255)
     pid = orm.Integer()
     icon_url = orm.String(length=255)
     pic_url = orm.String(length=255)
@@ -127,7 +127,7 @@ class LitemallCouponUser(orm.Model):
     user_id = orm.Integer()
     coupon_id = orm.Integer()
     status = orm.Integer()
-    user_time = orm.Datetime()
+    used_time = orm.Datetime()
     start_time = orm.Datetime()
     end_time = orm.Datetime()
     order_id = orm.Integer()
@@ -177,16 +177,16 @@ class LitemallCoupon(orm.Model):
     __tablename__ = 'litemall_coupon'
     id = orm.Integer(primary_key=True)
     name = orm.String(length=63)
-    desc = orm.String(length=127)
+    description = orm.String(length=127)
     tag = orm.String(length=63)
     total = orm.Integer()
     discount = orm.Float()
     min = orm.Float()
-    limit = orm.Integer()
+    limitation = orm.Integer()
     type = orm.Integer()
     status = orm.Integer()
     goods_type = orm.Integer()
-    goods_valus = orm.String(length=1023)
+    goods_value = orm.String(length=1023)
     code = orm.String(length=63)
     time_type = orm.Integer()
     days = orm.Integer()
