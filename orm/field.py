@@ -7,16 +7,32 @@ class Cond(object):
         :param op:
         :param value:
         """
-        self.field = field
-        self.op = op
-        self.value = value
+        if op == "BETWEEN":
+            self._sql = " ".join([op, "? AND ? "])
+            self._args = value
+            self._field = field
+        elif op == "LIKE":
+            self._sql = " ".join([op, value])
+            self._args = []
+            self._field = field
+        elif op == "IN":
+            self._sql = " " + op
+            self._sql += " ( ? "
+            for v in value[1:]:
+                self._sql += ", ? "
+            self._sql += ")"
+            self._args = value
+            self._field = field
+        else:
+            self._sql = " ".join([field, op, "?"]);
+            self._args = [value]
+            self._field = ""
 
     def sql(self):
-        return " ".join([self.field, self.op, "?"])
+        return self._field + " " + self._sql
 
     def args(self):
-        return [self.value]
-
+        return self._args
 
 class MultiCond(Cond):
     def __init__(self, logic, *conds):
@@ -44,14 +60,7 @@ def XOR_(*conds):
     return MultiCond("XOR", *conds)
 
 def NOT_(cond):
-    option = {"=" : "<>",
-              "<>": "=",
-              "!=": "=",
-              "<" : ">=",
-              ">" : "<=",
-              "<=": ">",
-              ">=": "<"}
-    cond.op = option[cond.op]
+    cond._sql = " NOT " + cond._sql
     return cond
 
 class Field(object):
@@ -101,6 +110,14 @@ class Field(object):
     def __ge__(self, other) -> Cond:
         return Cond(self.name, ">=", other)
 
+    def between(self, begin, end):
+        return Cond(self.name, "BETWEEN", [begin, end])
+
+    def like(self, expr):
+        return Cond(self.name, "LIKE", expr)
+
+    def in_(self, args):
+        return Cond(self.name, "IN", args)
 
 class String(Field):
 

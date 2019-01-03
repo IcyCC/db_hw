@@ -46,27 +46,27 @@ async def high_select():
     await sql.fetch()
     # do other works
 
-    sql = User.query().where(User.id).between(1, 100)
+    sql = User.query().where(User.id.between(1, 100)).order(User.id).limit(10)
     await sql.fetch()
     # do other works
 
-    sql = User.query().where(User.id).not_between(1, 100).order(User.id).limit(10)
+    sql = User.query().where(orm.NOT_(User.id.between(1, 100))).order(User.id).limit(10)
     await sql.fetch()
     # do other works
 
-    sql = User.query().where(User.id).in_(1,2,3,4,100)
+    sql = User.query().where(User.id.in_([1,2,3,4,100]))
     await sql.fetch()
     # do other works
 
-    sql = User.query().where(User.id).not_in(1,2,3,4,100)
+    sql = User.query().where(orm.AND_(orm.NOT_(User.id.in_([1,2,3,4,100])), User.id.in_([11,222])))
     await sql.fetch()
     # do other works
 
-    sql = User.query().where(User.name).like("B%")
+    sql = User.query().where(User.name.like("B%"))
     await sql.fetch()
     # do other works
 
-    sql = User.query().where(User.name).not_like("B%")
+    sql = User.query().where(orm.NOT_(User.name.like("B%")))
     await sql.fetch()
     # do other works
 
