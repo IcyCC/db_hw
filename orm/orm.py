@@ -1,7 +1,11 @@
+import asyncio
 import logging
 import copy
 from . import conn
 from .field import *
+from .event import event_bus, TriggerEvent
+
+loop = asyncio.get_event_loop()
 
 
 class ModelMetaClass(type):
@@ -35,6 +39,7 @@ class ModelMetaClass(type):
         attrs['__insert__'] = "INSERT INTO {} ".format(attrs['__tablename__'])
         attrs['__update__'] = "UPDATE {} SET ".format(attrs['__tablename__'])
         attrs['__delete_s__'] = "DELETE FROM {} ".format(attrs['__tablename__'])
+        attrs['__count__']  = "SELECT COUNT(*) FROM {}".format(attrs['__tablename__'])
 
         return type.__new__(cls, name, bases, attrs)
 
@@ -45,6 +50,9 @@ class ModelMetaClass(type):
         :return:
         """
         return cls.__mappings__[item]
+
+    def add_event(cls, field: Field, action: str, listener):
+        event_bus.add_listener(TriggerEvent(cls.__tablename__, field.name, action), listener)
 
 
 class Model(dict, metaclass=ModelMetaClass):
@@ -64,6 +72,11 @@ class Model(dict, metaclass=ModelMetaClass):
         return self.get(item, None)
 
     def __setattr__(self, key, value):
+        asyncio.ensure_future(event_bus.publish(TriggerEvent(
+            self.__tablename__,
+            key,
+            'SET'
+        )))
         self[key] = value
 
     @classmethod
@@ -193,8 +206,6 @@ class PreQuery:
         self._model = model
         if args is None:
             args = list()
-        if not sql:
-            sql = model.__select__
         self._sql = sql
         self._args = args
 
@@ -249,8 +260,12 @@ class PreQuery:
         return query
 
     async def fetch(self):
-        rows = await conn.select(sql=self.sql(), args=self.args(), size=None)
+        rows = await conn.select(sql=self._model.__select__ + self.sql(), args=self.args(), size=None)
         result = list()
         for r in rows:
             result.append(self._model(**r))
         return result
+
+    async def count(self):
+        rows = await conn.select(sql=self._model.__count__ + self.sql(), args=self.args(), size=None)
+        return rows[0].get('COUNT(*)', 0)

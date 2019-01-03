@@ -14,7 +14,7 @@ class LitemallFootprint(orm.Model):
     goods_id = orm.Integer()
     add_time = orm.Datetime()
     updated_at = orm.Datetime()
-    deleted_at = orm.TinyInteger(length=1)
+    deleted_at = orm.Datetime()
 
 
 class LitemallAdmin(orm.Model):
@@ -27,7 +27,7 @@ class LitemallAdmin(orm.Model):
     avatar = orm.String(length=255)
     add_time = orm.Datetime()
     updated_at = orm.Datetime()
-    deleted_at = orm.TinyInteger(length=1)
+    deleted_at = orm.Datetime()
 
 
 class LitemallAddress(orm.Model):
@@ -40,7 +40,7 @@ class LitemallAddress(orm.Model):
     is_default = orm.TinyInteger(length=1)
     add_time = orm.Datetime()
     updated_at = orm.Datetime()
-    deleted_at = orm.TinyInteger(length=1)
+    deleted_at = orm.Datetime()
 
 
 class LitemallGoodsSpecification(orm.Model):
@@ -52,7 +52,7 @@ class LitemallGoodsSpecification(orm.Model):
     pic_url = orm.String(length=255)
     add_time = orm.Datetime()
     updated_at = orm.Datetime()
-    deleted_at = orm.TinyInteger(length=1)
+    deleted_at = orm.Datetime()
 
 
 class LitemallBrand(orm.Model):
@@ -63,7 +63,7 @@ class LitemallBrand(orm.Model):
     pic_url = orm.String(length=255)
     add_time = orm.Datetime()
     updated_at = orm.Datetime()
-    deleted_at = orm.TinyInteger(length=1)
+    deleted_at = orm.Datetime()
 
 
 class LitemallCollect(orm.Model):
@@ -73,7 +73,7 @@ class LitemallCollect(orm.Model):
     value_id = orm.Integer()
     add_time = orm.Datetime()
     updated_at = orm.Datetime()
-    deleted_at = orm.TinyInteger(length=1)
+    deleted_at = orm.Datetime()
 
 
 class LitemallOrderGoods(orm.Model):
@@ -89,7 +89,7 @@ class LitemallOrderGoods(orm.Model):
     pic_url = orm.String(length=255)
     add_time = orm.Datetime()
     updated_at = orm.Datetime()
-    deleted_at = orm.TinyInteger(length=1)
+    deleted_at = orm.Datetime()
 
 
 class LitemallCategory(orm.Model):
@@ -105,7 +105,7 @@ class LitemallCategory(orm.Model):
     sort_order = orm.TinyInteger(length=3)
     add_time = orm.Datetime()
     updated_at = orm.Datetime()
-    deleted_at = orm.TinyInteger(length=1)
+    deleted_at = orm.Datetime()
 
 
 class LitemallComment(orm.Model):
@@ -118,7 +118,7 @@ class LitemallComment(orm.Model):
     star = orm.Integer()
     add_time = orm.Datetime()
     updated_at = orm.Datetime()
-    deleted_at = orm.TinyInteger(length=1)
+    deleted_at = orm.Datetime()
 
 
 class LitemallCouponUser(orm.Model):
@@ -133,7 +133,7 @@ class LitemallCouponUser(orm.Model):
     order_id = orm.Integer()
     add_time = orm.Datetime()
     updated_at = orm.Datetime()
-    deleted_at = orm.TinyInteger(length=1)
+    deleted_at = orm.Datetime()
 
 
 class LitemallGoodsProduct(orm.Model):
@@ -146,7 +146,7 @@ class LitemallGoodsProduct(orm.Model):
     url = orm.String(length=125)
     add_time = orm.Datetime()
     updated_at = orm.Datetime()
-    deleted_at = orm.TinyInteger(length=1)
+    deleted_at = orm.Datetime()
 
 
 class LitemallOrder(orm.Model):
@@ -170,7 +170,7 @@ class LitemallOrder(orm.Model):
     end_time = orm.Datetime()
     add_time = orm.Datetime()
     updated_at = orm.Datetime()
-    deleted_at = orm.TinyInteger(length=1)
+    deleted_at = orm.Datetime()
 
 
 class LitemallCoupon(orm.Model):
@@ -194,7 +194,7 @@ class LitemallCoupon(orm.Model):
     end_time = orm.Datetime()
     add_time = orm.Datetime()
     updated_at = orm.Datetime()
-    deleted_at = orm.TinyInteger(length=1)
+    deleted_at = orm.Datetime()
 
 
 class LitemallGoods(orm.Model):
@@ -211,12 +211,11 @@ class LitemallGoods(orm.Model):
     sort_order = orm.Integer()
     pic_url = orm.String(length=255)
     unit = orm.String(length=31)
-    counter_price = orm.Float()
     retail_price = orm.Float()
     detail = orm.Text()
     add_time = orm.Datetime()
     updated_at = orm.Datetime()
-    deleted_at = orm.TinyInteger(length=1)
+    deleted_at = orm.Datetime()
 
 
 class LitemallCart(orm.Model):
@@ -233,7 +232,7 @@ class LitemallCart(orm.Model):
     pic_url = orm.String(length=255)
     add_time = orm.Datetime()
     updated_at = orm.Datetime()
-    deleted_at = orm.TinyInteger(length=1)
+    deleted_at = orm.Datetime()
 
 
 class LitemallUser(orm.Model):
@@ -251,4 +250,4 @@ class LitemallUser(orm.Model):
     status = orm.TinyInteger(length=3)
     add_time = orm.Datetime()
     updated_at = orm.Datetime()
-    deleted_at = orm.TinyInteger(length=1)
+    deleted_at = orm.Datetime()
