@@ -127,7 +127,7 @@ class LitemallCouponUser(orm.Model):
     user_id = orm.Integer()
     coupon_id = orm.Integer()
     status = orm.Integer()
-    user_time = orm.Datetime()
+    used_time = orm.Datetime()
     start_time = orm.Datetime()
     end_time = orm.Datetime()
     order_id = orm.Integer()
