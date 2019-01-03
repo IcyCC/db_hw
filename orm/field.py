@@ -151,5 +151,5 @@ class Datetime(Field):
 
 class Float(Field):
 
-    def __init__(self, length=11, dec=4, primary_key=False, default=None, not_null=False, not_null=not_null):
-        super().__init__(type="float({},{})".format(str(length), str(dec)))
+    def __init__(self, length=11, dec=4, primary_key=False, default=None, not_null=False):
+        super().__init__(type="float({},{})".format(str(length), str(dec)), not_null=not_null)

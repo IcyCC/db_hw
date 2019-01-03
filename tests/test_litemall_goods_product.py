@@ -61,7 +61,7 @@ class TestLitemallGoodsProduct(asynctest.TestCase):
 
     async def test_delete(self):
         e1 = await model.LitemallGoodsProduct.find_by(goods_id = 1)
-        tmp = e1.id;
+        tmp = e1.id
         await e1.delete()
 
         e2 = await model.LitemallGoodsProduct.find_by(id = tmp)

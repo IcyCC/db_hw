@@ -11,7 +11,7 @@ sql_config = dict(host='localhost',
                   autocommit=True,
                   maxsize=10,
                   minsize=1,
-)     
+                  )
 
 
 class TestLitemallGoodsSpecification(asynctest.TestCase):
@@ -23,28 +23,28 @@ class TestLitemallGoodsSpecification(asynctest.TestCase):
             **sql_config
         ))
         self.loop.run_until_complete(orm.conn.execute(None,
-            "TRUNCATE TABLE litemall_goods_specification"
-        ))
+                                                      "TRUNCATE TABLE litemall_goods_specification"
+                                                      ))
 
     async def test_create(self):
         for i in range(5):
             await model.LitemallGoodsSpecification(
-                goods_id = i,
-                specification = 'test' + str(i),
-                value = 'test',
-                pic_url = 'test'
+                goods_id=i,
+                specification='test' + str(i),
+                value='test',
+                pic_url='test'
             ).save()
         result = list()
         result = await model.LitemallGoodsSpecification.all()
-        self.assertEqual(len(result),5)
+        self.assertEqual(len(result), 5)
 
     async def test_update(self):
         for i in range(5):
             await model.LitemallGoodsSpecification(
-                goods_id = i,
-                specification = 'test' + str(i),
-                value = 'test',
-                pic_url = 'test'
+                goods_id=i,
+                specification='test' + str(i),
+                value='test',
+                pic_url='test'
             ).save()
         e1 = await model.LitemallGoodsSpecification.find_by(id=4)
         e1.value = 'updated_value'
@@ -55,10 +55,10 @@ class TestLitemallGoodsSpecification(asynctest.TestCase):
     async def test_delete(self):
         for i in range(5):
             await model.LitemallGoodsSpecification(
-                goods_id = i,
-                specification = 'test' + str(i),
-                value = 'test',
-                pic_url = 'test'
+                goods_id=i,
+                specification='test' + str(i),
+                value='test',
+                pic_url='test'
             ).save()
         e1 = await model.LitemallGoodsSpecification.find_by(id=3)
         await e1.delete()
@@ -68,12 +68,12 @@ class TestLitemallGoodsSpecification(asynctest.TestCase):
     async def test_high_query(self):
         for i in range(5):
             await model.LitemallGoodsSpecification(
-                goods_id = i,
-                specification = 'test' + str(i),
-                value = 'test',
-                pic_url = 'test'
+                goods_id=i,
+                specification='test' + str(i),
+                value='test',
+                pic_url='test'
             ).save()
-        sql = model.LitemallGoodsSpecification.query().where(orm.AND_(model.LitemallGoodsSpecification.value == 'test', 
-                                            model.LitemallGoodsSpecification.goods_id == 1))
+        sql = model.LitemallGoodsSpecification.query().where(orm.AND_(model.LitemallGoodsSpecification.value == 'test',
+                                                                      model.LitemallGoodsSpecification.goods_id == 1))
         res = await sql.fetch()
         self.assertEqual(len(res), 1)
