@@ -1,7 +1,6 @@
 import asynctest
 import model
 import orm
-import pdb
 
 sql_config = dict(host='localhost',
                   port=3306,
