@@ -7,8 +7,8 @@ class Templ(orm.Model):
     name = orm.String(length=32)
 
 
-class LitemallFootPrints(orm.Model):
-    __tablename__ = 'litemall_foot_prints'
+class LitemallFootprint(orm.Model):
+    __tablename__ = 'litemall_footprint'
     id = orm.Integer(primary_key=True)
     user_id = orm.Integer()
     goods_id = orm.Integer()

@@ -43,6 +43,7 @@ class TestTempl(asynctest.TestCase):
         e2 = await model.Templ.find_by(id=e1.id)
         self.assertIsNone(e2, None)
 
-    async def high_query(self):
-        res = model.Templ.query().where(model.Templ.name == 'a').order('id', True).limit(1)
+    async def test_high_query(self):
+        sql = model.Templ.query().where(model.Templ.name == 'a').order('id', True).limit(1)
+        res = await sql.fetch()
         self.assertEqual(len(res), 1)
