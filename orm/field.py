@@ -68,7 +68,7 @@ class Field(object):
     处理字段相关逻辑
     """
 
-    def __init__(self, type, primary_key=False, default=None):
+    def __init__(self, type, primary_key=False, default=None, not_null=False):
         self.name = None
         self.type = type
         self.primary_key = primary_key
@@ -121,35 +121,35 @@ class Field(object):
 
 class String(Field):
 
-    def __init__(self, length, primary_key=False, default=None):
-        super().__init__(type="varchar({})".format(str(length)), primary_key=primary_key, default=default)
+    def __init__(self, length, primary_key=False, default=None, not_null=False):
+        super().__init__(type="varchar({})".format(str(length)), primary_key=primary_key, default=default, not_null=not_null)
 
 
 class Integer(Field):
 
-    def __init__(self, length=11, primary_key=False, default=None):
-        super().__init__(type="int({})".format(str(length)), primary_key=primary_key, default=default)
+    def __init__(self, length=11, primary_key=False, default=None, not_null=False):
+        super().__init__(type="int({})".format(str(length)), primary_key=primary_key, default=default, not_null=not_null)
 
 
 class Text(Field):
 
-    def __init__(self, primary_key=False, default=None):
-        super().__init__(type="mediumtext", primary_key=primary_key, default=default)
+    def __init__(self, primary_key=False, default=None, not_null=False):
+        super().__init__(type="mediumtext", primary_key=primary_key, default=default, not_null=not_null)
 
 
 class TinyInteger(Field):
 
-    def __init__(self, length, primary_key=False, default=None):
-        super().__init__(type="tinyint({})".format(str(length)), primary_key=primary_key, default=default)
+    def __init__(self, length, primary_key=False, default=None, not_null=False):
+        super().__init__(type="tinyint({})".format(str(length)), primary_key=primary_key, default=default, not_null=not_null)
 
 
 class Datetime(Field):
 
-    def __init__(self, primary_key=False, default=None):
-        super().__init__(type="datetime", primary_key=primary_key, default=default)
+    def __init__(self, primary_key=False, default=None, not_null=False):
+        super().__init__(type="datetime", primary_key=primary_key, default=default, not_null=not_null)
 
 
 class Float(Field):
 
-    def __init__(self, length=11, dec=4, primary_key=False, default=None):
+    def __init__(self, length=11, dec=4, primary_key=False, default=None, not_null=False, not_null=not_null):
         super().__init__(type="float({},{})".format(str(length), str(dec)))
