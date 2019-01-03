@@ -90,7 +90,7 @@ async def trans():
 ```
 2
 ```python
-async await Transaction.begin() as tx:
+async with await Transaction.begin() as tx:
     await u1.save(tx)
     await u2.save(tx)
 ```
