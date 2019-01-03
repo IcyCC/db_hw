@@ -1,10 +1,12 @@
 import asyncio
 from . import conn
 
+
 class Transaction(object):
     """
     全局事务管理
     """
+
     def __init__(self, conn):
         self.conn = conn
 

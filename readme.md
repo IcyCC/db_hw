@@ -102,3 +102,30 @@ async with await Transaction.begin() as tx:
 name = orm.String(length=32, index='idx_users_name(32)')
 
 ```
+
+### 软触发器 + 业务基础类
+
+```python
+
+class BaseModel(orm.Model):
+
+    def __init__(self, **kwargs):
+        super(BaseModel, self).__init__(**kwargs)
+        orm.event_bus.add_table_event(self,
+                                      'CREATED', self.on_base_model_created)
+        orm.event_bus.add_table_event(self,
+                                      'UPDATED', self.on_base_model_update)
+
+    id = orm.Integer(primary_key=True)
+    add_time = orm.Datetime()
+    updated_at = orm.Datetime()
+    deleted_at = orm.Datetime()
+
+    def on_base_model_created(self, event, *args, **kwargs):
+        args[0].add_time = datetime.datetime.now()
+
+    def on_base_model_update(self, event, *args, **kwargs):
+        args[0].updated_at = datetime.datetime.now()
+
+
+```
