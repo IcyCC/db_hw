@@ -124,7 +124,7 @@ class LitemallCouponUser(BaseModel):
 class LitemallGoodsProduct(BaseModel):
     __tablename__ = 'litemall_goods_product'
     goods_id = orm.Integer()
-    specification = orm.String(length=255)
+    spec_id = orm.Integer()
     price = orm.Float()
     number = orm.Integer()
     url = orm.String(length=125)

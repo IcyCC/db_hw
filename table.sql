@@ -182,8 +182,8 @@ create table if not exists litemall_goods_product
     primary key,
   goods_id      int default '0'               not null
   comment '商品表的商品ID',
-  specification varchar(255) default ''       not null
-  comment '商品规格名称',
+  spec_id int default '0'               not null
+  comment '商品规格id',
   price         decimal(10, 2) default '0.00' not null
   comment '商品货品价格',
   number        int default '0'               not null

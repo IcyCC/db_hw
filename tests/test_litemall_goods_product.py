@@ -27,7 +27,7 @@ class TestLitemallGoodsProduct(asynctest.TestCase):
     async def test_create(self):
         e1 = model.LitemallGoodsProduct(
             goods_id = 1,
-            specification = "tests",
+            spec_id = "tests",
             price = 1.1111,
             number = 1000,
             add_time = "2011-01-11",
@@ -40,7 +40,7 @@ class TestLitemallGoodsProduct(asynctest.TestCase):
     async def test_update(self):
         e1 = model.LitemallGoodsProduct(
             goods_id = 2,
-            specification = "tests",
+            spec_id = "tests",
             price = 1.1111,
             number = 1000,
             add_time = "2011-01-11",
