@@ -59,7 +59,7 @@ class TestLitemallFootprint(asynctest.TestCase):
         e2 = await model.LitemallFootprint.find_by(id=3)
         self.assertIsNone(e2, None)
 
-    async def high_query(self):
+    async def test_high_query(self):
         for i in range(5):
             await model.LitemallFootprint(
                 user_id = i,
@@ -67,4 +67,4 @@ class TestLitemallFootprint(asynctest.TestCase):
             ).save()
         sql = model.LitemallFootprint.query().where(model.LitemallFootprint.user_id <= 3)
         res = await sql.fetch()
-        self.assertEqual(len(res), 3)
+        self.assertEqual(len(res), 4)

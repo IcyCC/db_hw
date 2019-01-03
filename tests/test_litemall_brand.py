@@ -62,13 +62,13 @@ class TestLitemallBrand(asynctest.TestCase):
         e2 = await model.LitemallBrand.find_by(id=3)
         self.assertIsNone(e2, None)
 
-    async def high_query(self):
+    async def test_high_query(self):
         for i in range(5):
             await model.LitemallBrand(
                 name = 'test' + str(i),
                 description = 'test',
                 pic_url = 'test'
             ).save()
-        sql = model.LitemallBrand.query().where(orm.NOT_(model.LitemallBrand.name == 'test_updated_name'))
+        sql = model.LitemallBrand.query().where(orm.NOT_(model.LitemallBrand.name == 'test3'))
         res = await sql.fetch()
-        self.assertEqual(len(res), 3)
+        self.assertEqual(len(res), 4)

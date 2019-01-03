@@ -65,7 +65,7 @@ class TestLitemallGoodsSpecification(asynctest.TestCase):
         e2 = await model.LitemallGoodsSpecification.find_by(id=3)
         self.assertIsNone(e2, None)
 
-    async def high_query(self):
+    async def test_high_query(self):
         for i in range(5):
             await model.LitemallGoodsSpecification(
                 goods_id = i,
