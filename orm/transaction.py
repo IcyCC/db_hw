@@ -13,9 +13,12 @@ class Transaction(object):
 
     async def __aexit__(self, exctype, exc, tb):
         if exc is None:
+            print("commit")
             await self.commit()
         else:
+            print("rollback")
             await self.roll_back()
+        return True         #阻止继续抛出错误
 
     @classmethod
     async def begin(cls):
