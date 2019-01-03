@@ -33,8 +33,8 @@ class ModelMetaClass(type):
                 continue
             base_mapping = getattr(b, '__mappings__', {})
             mappings.update(base_mapping)
-
-
+            if not primary_key:
+                primary_key = b.__primary_key__
 
         if attrs.get('__tablename__', None) is None:
             attrs['__tablename__'] = str(name).lower()
