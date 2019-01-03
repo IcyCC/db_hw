@@ -1,7 +1,11 @@
+import asyncio
 import logging
 import copy
 from . import conn
 from .field import *
+from .event import event_bus, TriggerEvent
+
+loop = asyncio.get_event_loop()
 
 
 class ModelMetaClass(type):
@@ -46,6 +50,9 @@ class ModelMetaClass(type):
         """
         return cls.__mappings__[item]
 
+    def add_event(cls, field: Field, action: str, listener):
+        event_bus.add_listener(TriggerEvent(cls.__tablename__, field.name, action), listener)
+
 
 class Model(dict, metaclass=ModelMetaClass):
     """
@@ -64,6 +71,11 @@ class Model(dict, metaclass=ModelMetaClass):
         return self.get(item, None)
 
     def __setattr__(self, key, value):
+        loop.run_until_complete(event_bus.publish(TriggerEvent(
+            self.__tablename__,
+            key,
+            'SET'
+        )))
         self[key] = value
 
     @classmethod
