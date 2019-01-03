@@ -1,4 +1,6 @@
-from orm import orm
+import datetime
+import orm
+import asyncio
 
 
 class Templ(orm.Model):
@@ -7,78 +9,74 @@ class Templ(orm.Model):
     name = orm.String(length=32)
 
 
-class LitemallFootprint(orm.Model):
-    __tablename__ = 'litemall_footprint'
+class BaseModel(orm.Model):
+
+    def __init__(self, **kwargs):
+        super(BaseModel, self).__init__(**kwargs)
+        orm.event_bus.add_table_event(self,
+                                      'CREATED', self.on_base_model_created)
+        orm.event_bus.add_table_event(self,
+                                      'UPDATED', self.on_base_model_update)
+
     id = orm.Integer(primary_key=True)
-    user_id = orm.Integer()
-    goods_id = orm.Integer()
     add_time = orm.Datetime()
     updated_at = orm.Datetime()
     deleted_at = orm.Datetime()
 
+    def on_base_model_created(self, event, *args, **kwargs):
+        args[0].add_time = datetime.datetime.now()
 
-class LitemallAdmin(orm.Model):
+    def on_base_model_update(self, event, *args, **kwargs):
+        args[0].updated_at = datetime.datetime.now()
+
+
+class LitemallFootprint(BaseModel):
+    __tablename__ = 'litemall_footprint'
+    user_id = orm.Integer()
+    goods_id = orm.Integer()
+
+
+class LitemallAdmin(BaseModel):
     __tablename__ = 'litemall_admin'
-    id = orm.Integer(primary_key=True)
     username = orm.String(length=63)
     password = orm.String(length=63)
     last_login_ip = orm.String(length=63)
     last_login_time = orm.Datetime()
     avatar = orm.String(length=255)
-    add_time = orm.Datetime()
-    updated_at = orm.Datetime()
-    deleted_at = orm.Datetime()
 
 
-class LitemallAddress(orm.Model):
+class LitemallAddress(BaseModel):
     __tablename__ = 'litemall_address'
-    id = orm.Integer(primary_key=True)
     name = orm.String(length=63)
     user_id = orm.Integer()
     address = orm.String(length=127)
     mobile = orm.String(length=20)
     is_default = orm.TinyInteger(length=1)
-    add_time = orm.Datetime()
-    updated_at = orm.Datetime()
-    deleted_at = orm.Datetime()
 
 
-class LitemallGoodsSpecification(orm.Model):
+class LitemallGoodsSpecification(BaseModel):
     __tablename__ = 'litemall_goods_specification'
-    id = orm.Integer(primary_key=True)
     goods_id = orm.Integer()
     specification = orm.String(length=255)
     value = orm.String(length=255)
     pic_url = orm.String(length=255)
-    add_time = orm.Datetime()
-    updated_at = orm.Datetime()
-    deleted_at = orm.Datetime()
 
 
-class LitemallBrand(orm.Model):
+class LitemallBrand(BaseModel):
     __tablename__ = 'litemall_brand'
-    id = orm.Integer(primary_key=True)
     name = orm.String(length=255)
     description = orm.String(length=255)
     pic_url = orm.String(length=255)
-    add_time = orm.Datetime()
-    updated_at = orm.Datetime()
-    deleted_at = orm.Datetime()
 
 
-class LitemallCollect(orm.Model):
+class LitemallCollect(BaseModel):
     __tablename__ = 'litemall_collect'
-    id = orm.Integer(primary_key=True)
     user_id = orm.Integer()
     value_id = orm.Integer()
-    add_time = orm.Datetime()
-    updated_at = orm.Datetime()
-    deleted_at = orm.Datetime()
 
 
-class LitemallOrderGoods(orm.Model):
+class LitemallOrderGoods(BaseModel):
     __tablename__ = 'litemall_order_goods'
-    id = orm.Integer(primary_key=True)
     order_id = orm.Integer()
     goods_id = orm.Integer()
     goods_name = orm.String(length=127)
@@ -87,14 +85,10 @@ class LitemallOrderGoods(orm.Model):
     number = orm.Integer()
     price = orm.Float()
     pic_url = orm.String(length=255)
-    add_time = orm.Datetime()
-    updated_at = orm.Datetime()
-    deleted_at = orm.Datetime()
 
 
-class LitemallCategory(orm.Model):
+class LitemallCategory(BaseModel):
     __tablename__ = 'litemall_category'
-    id = orm.Integer(primary_key=True)
     name = orm.String(length=63)
     keywords = orm.String(length=1023)
     description = orm.String(length=255)
@@ -103,25 +97,19 @@ class LitemallCategory(orm.Model):
     pic_url = orm.String(length=255)
     level = orm.String(length=255)
     sort_order = orm.TinyInteger(length=3)
-    add_time = orm.Datetime()
-    updated_at = orm.Datetime()
-    deleted_at = orm.Datetime()
 
 
-class LitemallComment(orm.Model):
+class LitemallComment(BaseModel):
     __tablename__ = 'litemall_comment'
-    id = orm.Integer(primary_key=True)
     content = orm.String(length=1023)
     user_id = orm.Integer()
+    good_id = orm.Integer()
     has_picture = orm.TinyInteger(length=1)
     pic_urls = orm.String(length=1023)
     star = orm.Integer()
-    add_time = orm.Datetime()
-    updated_at = orm.Datetime()
-    deleted_at = orm.Datetime()
 
 
-class LitemallCouponUser(orm.Model):
+class LitemallCouponUser(BaseModel):
     __tablename__ = 'litemall_coupon_user'
     id = orm.Integer(primary_key=True)
     user_id = orm.Integer()
@@ -131,27 +119,19 @@ class LitemallCouponUser(orm.Model):
     start_time = orm.Datetime()
     end_time = orm.Datetime()
     order_id = orm.Integer()
-    add_time = orm.Datetime()
-    updated_at = orm.Datetime()
-    deleted_at = orm.Datetime()
 
 
-class LitemallGoodsProduct(orm.Model):
+class LitemallGoodsProduct(BaseModel):
     __tablename__ = 'litemall_goods_product'
-    id = orm.Integer(primary_key=True)
     goods_id = orm.Integer()
     specification = orm.String(length=255)
     price = orm.Float()
     number = orm.Integer()
     url = orm.String(length=125)
-    add_time = orm.Datetime()
-    updated_at = orm.Datetime()
-    deleted_at = orm.Datetime()
 
 
-class LitemallOrder(orm.Model):
+class LitemallOrder(BaseModel):
     __tablename__ = 'litemall_order'
-    id = orm.Integer(primary_key=True)
     user_id = orm.Integer()
     order_sn = orm.String(length=63)
     order_status = orm.Integer()
@@ -168,14 +148,10 @@ class LitemallOrder(orm.Model):
     ship_time = orm.Datetime()
     confirm_time = orm.Datetime()
     end_time = orm.Datetime()
-    add_time = orm.Datetime()
-    updated_at = orm.Datetime()
-    deleted_at = orm.Datetime()
 
 
-class LitemallCoupon(orm.Model):
+class LitemallCoupon(BaseModel):
     __tablename__ = 'litemall_coupon'
-    id = orm.Integer(primary_key=True)
     name = orm.String(length=63)
     description = orm.String(length=127)
     tag = orm.String(length=63)
@@ -192,14 +168,10 @@ class LitemallCoupon(orm.Model):
     days = orm.Integer()
     start_time = orm.Datetime()
     end_time = orm.Datetime()
-    add_time = orm.Datetime()
-    updated_at = orm.Datetime()
-    deleted_at = orm.Datetime()
 
 
-class LitemallGoods(orm.Model):
+class LitemallGoods(BaseModel):
     __tablename__ = 'litemall_goods'
-    id = orm.Integer(primary_key=True)
     goods_sn = orm.String(length=63)
     name = orm.String(length=127)
     category_id = orm.Integer()
@@ -213,14 +185,10 @@ class LitemallGoods(orm.Model):
     unit = orm.String(length=31)
     retail_price = orm.Float()
     detail = orm.Text()
-    add_time = orm.Datetime()
-    updated_at = orm.Datetime()
-    deleted_at = orm.Datetime()
 
 
-class LitemallCart(orm.Model):
+class LitemallCart(BaseModel):
     __tablename__ = 'litemall_cart'
-    id = orm.Integer(primary_key=True)
     user_id = orm.Integer()
     goods_id = orm.Integer()
     goods_sn = orm.String(length=63)
@@ -230,14 +198,10 @@ class LitemallCart(orm.Model):
     number = orm.Integer()
     checked = orm.TinyInteger(length=1)
     pic_url = orm.String(length=255)
-    add_time = orm.Datetime()
-    updated_at = orm.Datetime()
-    deleted_at = orm.Datetime()
 
 
-class LitemallUser(orm.Model):
+class LitemallUser(BaseModel):
     __tablename__ = 'litemall_user'
-    id = orm.Integer(primary_key=True)
     username = orm.String(length=63)
     password = orm.String(length=63)
     gender = orm.TinyInteger(length=3)
@@ -248,6 +212,3 @@ class LitemallUser(orm.Model):
     mobile = orm.String(length=20)
     avatar = orm.String(length=255)
     status = orm.TinyInteger(length=3)
-    add_time = orm.Datetime()
-    updated_at = orm.Datetime()
-    deleted_at = orm.Datetime()
